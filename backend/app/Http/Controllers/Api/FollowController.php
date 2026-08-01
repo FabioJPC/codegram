@@ -13,11 +13,11 @@ class FollowController extends Controller
         private FollowService $followService
     ){}
 
-    public function follow(Request $request, User $toFollow)
+    public function follow(Request $request, User $target)
     {
         $currentUser = $request->user();
 
-        $result = $this->followService->follow($currentUser, $toFollow);
+        $result = $this->followService->follow($currentUser, $target);
 
         $status = $result ? 201 : 422;
         $message = $result ? 'Você seguiu este usuário' : 'Não foi possível seguir este usuário';
@@ -25,11 +25,11 @@ class FollowController extends Controller
         return response()->json(['message' => $message], $status);
     }
 
-    public function unfollow(Request $request, User $toUnfollow)
+    public function unfollow(Request $request, User $target)
     {
         $currentUser = $request->user();
 
-        $result = $this->followService->unfollow($currentUser, $toUnfollow);
+        $result = $this->followService->unfollow($currentUser, $target);
 
         if ($result) {
             return response()->noContent();
