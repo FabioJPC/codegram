@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -23,6 +24,8 @@ return new class extends Migration
 
             $table->unique(['follower_id', 'following_id']);
         });
+
+        DB::statement('ALTER TABLE follows ADD CONSTRAINT check_self_follow CHECK (follower_id <> following_id)');
     }
 
     /**
