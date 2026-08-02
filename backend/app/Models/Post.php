@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Models;
+
+use App\Services\Api\FileService;
+use Illuminate\Database\Eloquent\Model;
+
+class Post extends Model
+{
+    protected $fillable = [
+        'user_id',
+        'caption'
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(
+            User::class,
+            'user_id',
+            'id'
+        );
+    }
+
+    public function images()
+    {
+        return $this->hasMany(
+            PostImage::class,
+            'post_id',
+            'id'
+        )->orderBy('position');
+    }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (Post $post) {
+            $fileService = app(FileService::class);
+            $fileService->deleteDirectory("posts/{$post->user_id}/{$post->id}");
+        });
+    }
+}

@@ -26,4 +26,23 @@ class FileService
 
         return false;
     }
+
+    public function storeImage(UploadedFile $image, string $folder): string
+    {
+        $hashName = Str::uuid() . '.' . $image->extension();
+
+        $path = $image->storeAs($folder, $hashName);
+
+        return $path;
+    }
+
+    public function deleteImage(string $path): void
+    {
+        Storage::disk('local')->delete($path);
+    }
+
+    public function deleteDirectory(string $path): void
+    {
+        Storage::disk('local')->deleteDirectory($path);
+    }
 }

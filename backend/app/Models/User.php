@@ -52,4 +52,13 @@ class User extends Authenticatable
             'follower_id'
         );
     }
+
+    public function posts()
+    {
+        return $this->hasMany(
+            Post::class,
+            'user_id',
+            'id'
+        )->latest();
+    }
 }

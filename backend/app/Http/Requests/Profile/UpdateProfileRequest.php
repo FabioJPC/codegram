@@ -26,7 +26,7 @@ class UpdateProfileRequest extends FormRequest
         return [
             'name'          => ['sometimes', 'string', 'max:255'],
             'bio'           => ['sometimes', 'nullable', 'string', 'max:500'],
-            'profile_photo' => ['sometimes', 'nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'profile_photo' => ['sometimes', 'nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
             'email'=> [
                     'sometimes',
                     'email',
