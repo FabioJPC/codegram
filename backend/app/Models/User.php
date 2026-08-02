@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use Dom\Comment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -60,5 +62,14 @@ class User extends Authenticatable
             'user_id',
             'id'
         )->latest();
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(
+            Comment::class,
+            'user-id',
+            'id'
+        );
     }
 }

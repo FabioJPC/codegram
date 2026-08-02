@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\FollowController;
 use App\Http\Controllers\Api\PostController;
 use App\Http\Controllers\Api\UserController;
+use Egulias\EmailValidator\Warning\Comment;
 use Illuminate\Support\Facades\Route;
 
 Route::post('login', [AuthController::class, 'login']);
@@ -30,5 +32,11 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::get('posts/{post}', [PostController::class, 'show']);
     Route::patch('posts/{post}', [PostController::class, 'update']);
     Route::delete('posts/{post}', [PostController::class, 'destroy']);
+    
+    // Comments
+    Route::get('posts/{post}/comments', [CommentController::class, 'index']);
+    Route::post('posts/{post}/comments', [CommentController::class, 'store']);
+    Route::delete('comments/{comment}', [CommentController::class, 'destroy']);
+    Route::patch('comments/{comment}', [CommentController::class, 'update']);
 
 });

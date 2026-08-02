@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Services\Api\FileService;
+use Dom\Comment;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Post extends Model
 {
@@ -21,13 +23,22 @@ class Post extends Model
         );
     }
 
-    public function images()
+    public function images(): HasMany
     {
         return $this->hasMany(
             PostImage::class,
             'post_id',
             'id'
         )->orderBy('position');
+    }
+
+    public function comments(): HasMany
+    {
+        return $this->hasMany(
+            Comment::class,
+            'post_id',
+            'id'
+        )->latest();
     }
 
     protected static function booted(): void
