@@ -41,6 +41,15 @@ class Post extends Model
         )->latest();
     }
 
+    public function likes(): HasMany
+    {
+        return $this->hasMany(
+            Like::class,
+            'post_id',
+            'id'
+        );
+    }
+
     protected static function booted(): void
     {
         static::deleting(function (Post $post) {
