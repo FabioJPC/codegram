@@ -3,6 +3,7 @@
 namespace App\Services\Api;
 
 use App\Models\Like;
+use App\Models\Post;
 use App\Models\User;
 
 class LikeService

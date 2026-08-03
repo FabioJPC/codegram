@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+
+:root {
+    --color-background: #090c11;
+    --bg-semi-transparent: rgba(37, 38, 39, 0.125);
+    --bg-light-gray: #e6e2e2;
+    --bg-middle-gray: #ccccccda;
+    --bg-dark-gray: #333333cf;
+    --bg-transparent: transparent;
+    --text-primary: #FFF;
+    --text-secondary: rgb(33, 37, 41);
+    --button-blue: #2397f7;
+    --main-gradient: linear-gradient(90deg,rgba(17, 17, 92, 0.7) 0%, rgba(59, 6, 59, 0.7) 100%);
+}
+
+html, body {
+  font-family: 'Inter', sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  font-size: 16px;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+}
+
+.tech-text {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+    -webkit-text-fill-color: var(--text-primary);
+    caret-color: var(--text-primary);
+
+    -webkit-box-shadow: 0 0 0 1000px transparent inset;
+    transition: background-color 9999s ease-in-out;
+}
