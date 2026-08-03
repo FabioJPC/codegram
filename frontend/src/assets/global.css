@@ -11,6 +11,13 @@
     --text-secondary: rgb(33, 37, 41);
     --button-blue: #2397f7;
     --main-gradient: linear-gradient(90deg,rgba(17, 17, 92, 0.7) 0%, rgba(59, 6, 59, 0.7) 100%);
+    --main-darker-gradient: linear-gradient(90deg,rgba(17, 17, 92, 1) 0%, rgba(59, 6, 59, 1) 100%);
+    
+}
+
+#app {
+  width: 100%;
+  height: 100vh;
 }
 
 html, body {
@@ -18,11 +25,13 @@ html, body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   font-size: 16px;
+  width: 100%;
+  height: 100vh;
 }
 
 body {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
 }
 
 .tech-text {

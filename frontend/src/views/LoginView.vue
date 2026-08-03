@@ -6,10 +6,13 @@
                 <Logo />
             </div>
             <h1 class="title">Sua comunidade dev,<br> <strong>agora conectada.</strong></h1>
-            <img 
-                class="welcome-image"
-                src="../assets/images/login-image.png" 
-                alt="Uma imagem que mostra várias postagens em uma rede social">
+            <div class="welcome-container">
+                <img 
+                    class="welcome-image"
+                    src="../assets/images/login-image.png" 
+                    alt="Uma imagem que mostra várias postagens em uma rede social"
+                >
+            </div>
         </main>
 
         <aside class="login-container">
@@ -32,22 +35,28 @@
                     label="Digite sua senha"
                 />
 
+                <p v-if="error" class="error">
+                    {{ error }}
+                </p>
+
                 <BaseButton 
-                    variant="login"
-                    type="submit"
-                    text="Entrar"
+                        variant="login"
+                        type="submit"
+                        text="Entrar"
                 />
             </form>
 
-            <BaseButton 
+            <BaseButton
                 variant="ghost"
                 text="Esqueceu sua senha?"
             />
 
-            <BaseButton 
-                variant="outline"
-                text="Criar uma nova conta"
-            />
+            <RouterLink to="/register">
+                <BaseButton 
+                    variant="outline"
+                    text="Criar uma nova conta"
+                />
+            </RouterLink>
         </aside>
     </div>
 </template>
@@ -57,21 +66,33 @@ import BaseButton from '@/components/BaseButton.vue';
 import BaseFormInput from '@/components/BaseFormInput.vue';
 import Logo from '@/components/Logo.vue';
 import authService from '@/services/authService';
-import { reactive } from 'vue';
+import { ref, reactive } from 'vue';
+import { RouterLink, RouterView, useRouter } from 'vue-router';
+
+const router = useRouter()
 
 const form = reactive({
     email: '',
     password: ''
 })
 
+const error = ref('')
+
 async function login() {
+
+    error.value = ''
+
     try {
         const response = await authService.login(form)
 
         localStorage.setItem('api-token', response.data.token)
 
-    } catch (error) {
-        console.error(error)
+        router.push('/feed')
+
+    } catch (err) {
+        error.value = 
+            err.response?.data?.message ??
+            'Email ou senha inválidos'
     }
 }
 
@@ -81,13 +102,18 @@ async function login() {
     .login-page {
         display: flex;
         background-color: var(--color-background);
-        width: 100vw;
-        height: 100vh;
+        width: 100%;
+        height: 100%;
     }
 
     .main {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
         background-color: var(--color-background);
         flex: 9;
+        padding: 4px;
+
     }
 
     .logo {
@@ -118,9 +144,15 @@ async function login() {
         color: var(--text-primary);
     }
 
+    .welcome-container {
+        flex: 1;
+    }
+
     .welcome-image {
+        flex: 1;
         height: auto;
-        width: 50rem;
+        width: 80%;
+        object-fit: cover;
     }
 
 </style>

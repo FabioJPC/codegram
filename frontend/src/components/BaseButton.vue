@@ -33,6 +33,17 @@ defineProps({
     background-color: var(--bg-light-gray);
 }
 
+.base-button--blue {
+    box-sizing: border-box;
+    background-color: var(--button-blue);
+    border: 1px solid transparent;
+}
+
+.base-button--blue:hover {
+    border: 1px solid white;
+    box-shadow: 2px 2px 8px var(--button-blue);
+}
+
 .base-button--ghost {
     background-color: var(--bg-transparent);
     border: none;
