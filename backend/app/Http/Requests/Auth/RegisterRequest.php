@@ -25,7 +25,7 @@ class RegisterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'          => ['required', 'string', 'max:255'],
+            'name'          => ['required', 'string', 'min:3', 'max:255'],
             'email'         => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
             'password'      => ['required', 'confirmed', Password::min(8)->letters()->numbers()->symbols()],
             'username'      => ['required', 'string', 'min:3' ,'max:30', 'alpha_dash', Rule::unique('users', 'username')],
@@ -39,6 +39,7 @@ class RegisterRequest extends FormRequest
             'name.required'         => 'O nome é obrigatório.',
             'name.string'           => 'O nome deve ser um texto válido.',
             'name.max'              => 'O nome pode ter no máximo 255 caracteres.',
+            'name.min'              => 'O nome deve ter no mínimo 3 caracteres',
 
             'email.required'        => 'O e-mail é obrigatório.',
             'email.email'           => 'Informe um e-mail válido.',

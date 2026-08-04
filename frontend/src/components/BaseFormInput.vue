@@ -9,6 +9,7 @@
             :value="modelValue"
             
             @input="emit('update:modelValue', $event.target.value)"
+            @blur="emit('blur')"
             
             class="form-control custom-input"
         >
@@ -16,12 +17,17 @@
             {{ label }}
         </label>
     </div>
+    <p v-if="error" class="error">
+        {{ error }}
+    </p>
 </template>
 
 <script setup>
 const props = defineProps({
 
     modelValue: String,
+
+    error: String,
 
     id: String,
     label: String,
@@ -38,7 +44,8 @@ const props = defineProps({
 })
 
 const emit = defineEmits([
-    'update:modelValue'
+    'update:modelValue',
+    'blur'
 ])
 
 </script>
@@ -65,5 +72,11 @@ const emit = defineEmits([
     
     .form-control:hover {
         border-color: white;
+    }
+
+    .error {
+        font-size: 0.9rem;
+        color: red;
+        text-align: center;
     }
 </style>

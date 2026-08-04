@@ -85,7 +85,7 @@ async function login() {
     try {
         const response = await authService.login(form)
 
-        localStorage.setItem('api-token', response.data.token)
+        authService.setToken(response.data.token)
 
         router.push('/feed')
 
@@ -93,7 +93,7 @@ async function login() {
         error.value = 
             err.response?.data?.message ??
             'Email ou senha inválidos'
-    }
+        }
 }
 
 </script>
@@ -153,6 +153,11 @@ async function login() {
         height: auto;
         width: 80%;
         object-fit: cover;
+    }
+
+    .error {
+        color: red;
+        text-align: center;
     }
 
 </style>
