@@ -33,7 +33,8 @@ export default {
     },
 
     logout() {
-        localStorage.removeItem('token');
-        isAuthenticatedState.value = false
+        console.log(isAuthenticatedState.value);
+        localStorage.removeItem(TOKEN_KEY);
+        isAuthenticatedState.value = false;
     }
 }
