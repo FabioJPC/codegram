@@ -7,7 +7,7 @@
             <div class="buttons">
                 <i class="bi bi-house-door-fill"></i>
                 <i class="bi bi-search"></i>
-                <i class="bi bi-plus-circle"></i>
+                <i class="bi bi-plus-circle" @click="showModal = true"></i>
                 <i class="bi bi-person-circle"></i>
             </div>
         </nav>
@@ -35,21 +35,33 @@
                 
             </div>
         </article>
+
+        <CreatePostModal
+            :open="showModal"
+            @close="showModal = false"
+        />
+
     </div>
 </template>
 
 <script setup>
 import Logo from '@/components/Logo.vue';
 import Post from '@/components/Post.vue';
+import CreatePostModal from '@/components/CreatePostModal.vue';
 import { getFeed } from '@/services/feedService';
 import { ref, onMounted} from 'vue';
 
 const posts = ref([]);
+const showModal = ref(false);
 
 onMounted(async ()=> {
     const response = await getFeed()
     posts.value = response.data;
 });
+
+function openCreatePostModal() {
+    showModal.value = true;
+}
 
 </script>
 

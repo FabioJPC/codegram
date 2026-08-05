@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Post\CreatePostRequest;
 use App\Http\Requests\Post\UpdatePostRequest;
+use App\Http\Resources\Post\PostResource;
 use App\Models\Post;
 use App\Services\Api\PostService;
 use Illuminate\Http\Request;
@@ -54,6 +55,6 @@ class PostController extends Controller
     {
         $posts = $this->postService->feed($request->user());
 
-        return response()->json($posts);
+        return response()->json(PostResource::collection($posts));
     }
 }

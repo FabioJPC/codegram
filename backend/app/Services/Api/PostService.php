@@ -86,8 +86,8 @@ class PostService
             ->whereIn('user_id', $followingIds)
             ->latest()
             ->with(['user', 'images'])
-            ->paginate(10)
-
-
+            ->paginate(10);
+        
+            return $posts;
     }
 }
