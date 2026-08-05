@@ -75,4 +75,19 @@ class PostService
         $post->delete();
     }
 
+    public function feed(User $user): array
+    {
+        $followingIds = $user->following()
+            ->pluck('users.id');
+
+        $followingIds->push($user->id);
+
+        $posts = Post::query()
+            ->whereIn('user_id', $followingIds)
+            ->latest()
+            ->with(['user', 'images'])
+            ->paginate(10)
+
+
+    }
 }

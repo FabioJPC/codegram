@@ -41,6 +41,10 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::patch('comments/{comment}', [CommentController::class, 'update']);
 
     // Like
-    Route::post('posts/{post}/likes', [LikeController::class, 'toggle']);
+    Route::post('posts/{post}/likes', [LikeController::class, 'store']);
+    Route::delete('posts/{post}/likes', [LikeController::class, 'destroy']);
+
+    // Feed
+    Route::get('feed', [PostController::class, 'feed']);
 
 });

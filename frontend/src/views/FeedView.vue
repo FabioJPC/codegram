@@ -13,8 +13,22 @@
         </nav>
         <main class="main">
             <div class="stories-container">
-                
+                <div class="placeholders"></div>
+                <div class="placeholders"></div>
+                <div class="placeholders"></div>
+                <div class="placeholders"></div>
+                <div class="placeholders"></div>
+                <div class="placeholders"></div>
             </div>
+
+            <div class="feed-container">
+                    <Post
+                        v-for="post in posts"
+                        :key="post.id"
+                        :post="post"
+                    />
+            </div>
+
         </main>
         <article class="suggestions">
             <div class="profile-container">
@@ -26,7 +40,16 @@
 
 <script setup>
 import Logo from '@/components/Logo.vue';
+import Post from '@/components/Post.vue';
+import { getFeed } from '@/services/feedService';
+import { ref, onMounted} from 'vue';
 
+const posts = ref([]);
+
+onMounted(async ()=> {
+    const response = await getFeed()
+    posts.value = response.data;
+});
 
 </script>
 
@@ -41,7 +64,8 @@ import Logo from '@/components/Logo.vue';
 }
 
 .nav {
-    padding: 10px;
+    position: sticky;
+    padding: 20px;
     flex: 2 1 0%;
     display: flex;
     flex-direction: column;
@@ -61,6 +85,21 @@ import Logo from '@/components/Logo.vue';
 
 .main {
     flex: 6 1 0%;
+}
+
+.stories-container {
+    display: flex;
+    gap: 30px;
+    height: 20%;
+    align-items: center;
+    justify-content: center;
+
+    .placeholders {
+        height: 90px;
+        width: 90px;
+        border-radius: 50%;
+        background-color: azure;
+    }
 }
 
 .suggestions {

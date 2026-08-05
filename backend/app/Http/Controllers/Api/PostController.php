@@ -49,4 +49,11 @@ class PostController extends Controller
 
         return response()->noContent();
     }
+
+    public function feed(Request $request)
+    {
+        $posts = $this->postService->feed($request->user());
+
+        return response()->json($posts);
+    }
 }

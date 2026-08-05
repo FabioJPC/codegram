@@ -14,9 +14,15 @@ class LikeController extends Controller
         private LikeService $service
     ){}
 
-    public function toggle(Request $request, Post $post): JsonResponse
+    public function store(Request $request, Post $post): JsonResponse
     {
-        $response = $this->service->toggleLike($request->user(), $post);
+        $response = $this->service->store($request->user(), $post);
+        return response()->json(['data' => $response]);
+    }
+
+    public function destroy(Request $request, Post $post): JsonResponse
+    {
+        $response = $this->service->destroy($request->user(), $post);
         return response()->json(['data' => $response]);
     }
 }
