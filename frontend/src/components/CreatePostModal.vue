@@ -37,11 +37,13 @@
       <textarea
         id="caption"
         placeholder="Escreva uma legenda..."
+        v-model="caption"
       ></textarea>
 
       <BaseButton 
         variant="blue"
-        text="Publicar"  
+        text="Publicar"
+        @click = 'publish'
       />
     </div>
   </div>
@@ -50,6 +52,7 @@
 <script setup>
 import { ref } from 'vue';
 import BaseButton from './BaseButton.vue';
+import postService from '@/services/postService.js';
 
 defineProps({
     open: Boolean
@@ -58,14 +61,22 @@ defineProps({
 const emit = defineEmits(['close']);
 
 const preview = ref(null);
+const caption = ref('');
+const image = ref(null)
 
 function handleFile(event) {
-    const eventFile = event.target.files[0]
+    const file = event.target.files[0]
 
-    if (! eventFile) return;
+    if (! file) return;
 
-    preview.value = URL.createObjectURL(eventFile);
+    image.value = file;
+    preview.value = URL.createObjectURL(file);
 }
+
+function publish() {
+    postService.create(image.value, caption.value);
+}
+
 
 </script>
 

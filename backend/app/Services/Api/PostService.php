@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\PostImage;
 use Illuminate\Support\Facades\DB;
 use App\Services\Concerns\AuthorizeOwnership;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class PostService
 {
@@ -75,7 +76,7 @@ class PostService
         $post->delete();
     }
 
-    public function feed(User $user): array
+    public function feed(User $user): LengthAwarePaginator
     {
         $followingIds = $user->following()
             ->pluck('users.id');

@@ -55,6 +55,6 @@ class PostController extends Controller
     {
         $posts = $this->postService->feed($request->user());
 
-        return response()->json(PostResource::collection($posts));
+        return response()->json(['data' => PostResource::collection($posts)]);
     }
 }

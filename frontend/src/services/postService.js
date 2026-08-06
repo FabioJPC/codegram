@@ -1,22 +1,31 @@
-import api from '../api/axios';
+import api from "@/api/axios";
 
 export default {
 
     async create(file, caption) {
+        console.log('create')
         const formData = new FormData();
         
         formData.append('caption', caption);
-        formData.append('file', file);
+        formData.append('images[]', file);
         
-        const response = await api.post(`/posts`, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
+        console.log('criação form')
+        try {
+            const response = await api.post(`/posts`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
 
-        return response.data;
-
-
+            console.log(response.data);
+            return response.data;
+        } catch(e){
+            console.log('ERRO');
+            console.log(e);
+            console.log(e.response.data);
+            console.log(e.response.status);
+            throw e;
+        }
     },
 
     toggleLike(postId, isCurrentlyliked) {

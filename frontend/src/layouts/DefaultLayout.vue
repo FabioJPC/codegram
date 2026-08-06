@@ -13,6 +13,6 @@ import { RouterView } from 'vue-router'
 .default-layout{
     background-color: var(--bg-main); 
     width: 100%;
-    height: 100%;  
+    height: 100vh;  
 }
 </style>

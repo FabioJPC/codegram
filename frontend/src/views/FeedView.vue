@@ -11,31 +11,32 @@
                 <i class="bi bi-person-circle"></i>
             </div>
         </nav>
-        <main class="main">
-            <div class="stories-container">
-                <div class="placeholders"></div>
-                <div class="placeholders"></div>
-                <div class="placeholders"></div>
-                <div class="placeholders"></div>
-                <div class="placeholders"></div>
-                <div class="placeholders"></div>
-            </div>
+        <div class="movable">
+            <main class="main">
+                <div class="stories-container">
+                    <div class="placeholders"></div>
+                    <div class="placeholders"></div>
+                    <div class="placeholders"></div>
+                    <div class="placeholders"></div>
+                    <div class="placeholders"></div>
+                    <div class="placeholders"></div>
+                </div>
 
-            <div class="feed-container">
-                    <Post
-                        v-for="post in posts"
-                        :key="post.id"
-                        :post="post"
-                    />
-            </div>
+                <div class="feed-container">
+                        <Post
+                            v-for="post in posts"
+                            :key="post.id"
+                            :post="post"
+                        />
+                </div>
 
-        </main>
-        <article class="suggestions">
-            <div class="profile-container">
-                
-            </div>
-        </article>
-
+            </main>
+            <article class="suggestions">
+                <div class="profile-container">
+                    
+                </div>
+            </article>
+        </div>
         <CreatePostModal
             :open="showModal"
             @close="showModal = false"
@@ -68,11 +69,13 @@ function openCreatePostModal() {
 <style scoped>
 .feed {
     width: 100%;
-    height: 100%;
+    height: 100vh;
     padding: 2px;
     display: flex;
     flex-wrap: nowrap;
     justify-content: flex-start;
+    padding-top: 50px;
+    padding-bottom: 10px;
 }
 
 .nav {
@@ -82,6 +85,11 @@ function openCreatePostModal() {
     display: flex;
     flex-direction: column;
     gap: 70px;
+}
+
+.movable {
+    display: flex;
+    flex: 8 1 0%;
 }
 
 .buttons {
@@ -97,6 +105,24 @@ function openCreatePostModal() {
 
 .main {
     flex: 6 1 0%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+        margin-top: 40px;
+    overflow-y: auto;
+}
+.main::-webkit-scrollbar {
+    width: 3px;
+}
+
+.main::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+.main::-webkit-scrollbar-thumb {
+    background: var(--text-primary);
+    border-radius: 4px;
+    margin: 5px 0;
 }
 
 .stories-container {
