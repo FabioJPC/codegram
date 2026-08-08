@@ -94,6 +94,9 @@ import {
     validatePassword 
 } from '@/validation/userValidation';
 import { reactive } from 'vue';
+import { useAuthStore } from '@/stores/authStore';
+
+const authStore = useAuthStore();
 
 const errors = reactive({
     name: '',
@@ -121,9 +124,7 @@ function goBack() {
 
 async function register() {
     try {
-        const response = await authService.register(form);
-
-        authService.setToken(response.data.token);
+        await authStore.register(form);
 
         router.push('/feed');
 

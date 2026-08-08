@@ -65,9 +65,11 @@
 import BaseButton from '@/components/BaseButton.vue';
 import BaseFormInput from '@/components/BaseFormInput.vue';
 import Logo from '@/components/Logo.vue';
-import authService from '@/services/authService';
 import { ref, reactive } from 'vue';
-import { RouterLink, RouterView, useRouter } from 'vue-router';
+import { RouterLink, useRouter } from 'vue-router';
+import { useAuthStore } from '@/stores/authStore';
+
+const authStore = useAuthStore();
 
 const router = useRouter()
 
@@ -83,9 +85,7 @@ async function login() {
     error.value = ''
 
     try {
-        const response = await authService.login(form)
-
-        authService.setToken(response.data.token)
+        await authStore.login(form)
 
         router.push('/feed')
 
@@ -93,7 +93,7 @@ async function login() {
         error.value = 
             err.response?.data?.message ??
             'Email ou senha inválidos'
-        }
+    }
 }
 
 </script>

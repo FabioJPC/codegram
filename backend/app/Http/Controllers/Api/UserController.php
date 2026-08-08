@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Profile\UpdateProfileRequest;
+use App\Http\Resources\User\UserResource;
 use App\Services\Api\UserService;
 use Illuminate\Http\Request;
 
@@ -15,7 +16,9 @@ class UserController extends Controller
 
     public function show(Request $request)
     {
-        return response()->json($this->userService->me($request->user()->id));
+        return new UserResource(
+            $this->userService->me($request->user()->id)
+        );
     }
 
     public function update(UpdateProfileRequest $request)

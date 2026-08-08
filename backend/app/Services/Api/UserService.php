@@ -12,9 +12,9 @@ class UserService
         private FileService $fileService
     ){}
 
-    public function me(int $id): array
+    public function me(int $id)
     {
-        return ['data' => User::findOrFail($id)];
+        return User::findOrFail($id);
     }
 
     public function update(User $user, array $data, ?UploadedFile $photo)

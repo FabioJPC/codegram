@@ -4,9 +4,12 @@ import router from './router'
 import './assets/reset.css'
 import './assets/global.css'
 import 'bootstrap/dist/css/bootstrap.min.css'
+import pinia from './pinia.js'
 
-const app = createApp(App)
+const app = createApp(App);
 
-app.use(router)
+app.use(router);
 
-app.mount('#app')
+app.use(pinia);
+
+app.mount('#app');

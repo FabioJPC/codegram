@@ -11,38 +11,55 @@
                 <i class="bi bi-person-circle"></i>
             </div>
         </nav>
-        <div class="movable">
-            <main class="main">
-                <div class="stories-container">
-                    <div class="placeholders"></div>
-                    <div class="placeholders"></div>
-                    <div class="placeholders"></div>
-                    <div class="placeholders"></div>
-                    <div class="placeholders"></div>
-                    <div class="placeholders"></div>
+
+        <main class="main">
+            <div class="stories-container">
+                <div class="placeholders"></div>
+                <div class="placeholders"></div>
+                <div class="placeholders"></div>
+                <div class="placeholders"></div>
+                <div class="placeholders"></div>
+                <div class="placeholders"></div>
+            </div>
+
+            <div class="feed-container">
+
+                <div v-if="error" class="error-message">
+                    {{ error }}
                 </div>
 
-                <div class="feed-container">
-                        <Post
-                            v-for="post in posts"
-                            :key="post.id"
-                            :post="post"
-                        />
-                </div>
+                <Post
+                    v-for="post in posts"
+                    :key="post.id"
+                    :post="post"
+                />
+            </div>
+        </main>
 
-            </main>
             <article class="suggestions">
                 <div class="profile-container">
-                    
+                    <img 
+                        v-if="authStore.user?.avatarUrl" 
+                        :src="authStore.user.avatarUrl" 
+                        :alt="authStore.user.username"
+                        class="avatar-img" 
+                    />
+
+                    <i v-else class="bi bi-person-circle"></i>
+
+                    <span>{{ authStore.user?.username }}</span>
+                </div>
+
+                <div class="follow-sugestions">
+
                 </div>
             </article>
         </div>
+
         <CreatePostModal
             :open="showModal"
             @close="showModal = false"
         />
-
-    </div>
 </template>
 
 <script setup>
@@ -51,19 +68,27 @@ import Post from '@/components/Post.vue';
 import CreatePostModal from '@/components/CreatePostModal.vue';
 import { getFeed } from '@/services/feedService';
 import { ref, onMounted} from 'vue';
+import { useAuthStore } from '@/stores/authStore';
 
 const posts = ref([]);
 const showModal = ref(false);
+const error = ref(null);
+const isLoading = ref(true);
+const authStore = useAuthStore();
 
 onMounted(async ()=> {
-    const response = await getFeed()
-    posts.value = response.data;
+    try {
+        isLoading.value = true;
+        error.value = null;
+
+        const response = await getFeed()
+        posts.value = response || [];
+    } catch (e){
+        error.value = "Erro ao carregar posts: " + e.message;
+    } finally {
+        isLoading.value = false;
+    }
 });
-
-function openCreatePostModal() {
-    showModal.value = true;
-}
-
 </script>
 
 <style scoped>
@@ -104,12 +129,14 @@ function openCreatePostModal() {
 }
 
 .main {
-    flex: 6 1 0%;
-    height: 100%;
     display: flex;
+    flex: 6 1 0%;
     flex-direction: column;
-        margin-top: 40px;
+    gap: 40px;
+    height: 100%;
+    margin-top: 40px;
     overflow-y: auto;
+    padding-bottom: 30px;
 }
 .main::-webkit-scrollbar {
     width: 3px;
@@ -120,7 +147,7 @@ function openCreatePostModal() {
 }
 
 .main::-webkit-scrollbar-thumb {
-    background: var(--text-primary);
+    background: transparent;
     border-radius: 4px;
     margin: 5px 0;
 }
@@ -131,6 +158,7 @@ function openCreatePostModal() {
     height: 20%;
     align-items: center;
     justify-content: center;
+    margin-top: 40px;
 
     .placeholders {
         height: 90px;
@@ -147,6 +175,8 @@ function openCreatePostModal() {
 i {
     font-size: 1.6rem;
     color: var(--text-primary);
+    cursor: pointer;
+    width: 20px;
 }
 
 </style>

@@ -13,7 +13,11 @@
         </div>
 
         <div class="card-content">
-            <img :src="post.mediaUrl" :alt="post.mediaCaption" class="post-media">
+            <img 
+                :src="post.mediaUrl" 
+                :alt="post.mediaCaption" 
+                class="post-media"
+            >
         </div>
 
         <div class="card-footer">
@@ -29,7 +33,16 @@
                 </div>
                 <i class="bi bi-bookmark"></i>
             </div>
-            <p class="likes"><b>{{ localLikesCount }}</b></p>
+            
+            <p v-if="localLikesCount > 0" class="likes">
+                <b>{{ localLikesCount }}</b>
+            </p>
+
+            <p v-else class="likes">
+                Nenhuma curtida
+            </p>
+
+            <div class="caption"> {{ post.caption }}</div>
         </div>
     </article>
 </template>
@@ -67,7 +80,10 @@ const toggleLike = async () => {
     localLikesCount.value += isLiked.value ? 1 : -1;
 
     try {
-        await postService.toggleLike(props.post.id, isLiked);
+        const response = await postService.toggleLike(props.post.id, previousState);
+        console.log(response);
+        isLiked.value = response.data.isLikedByMe;
+        localLikesCount.value = response.data.likesCount;
     } catch (error) {
         isLiked.value = previousState;
         localLikesCount.value = previousCount;
@@ -106,6 +122,7 @@ const toggleLike = async () => {
 .post-media {
     width: 100%;
     aspect-ratio: 4/5;
+    object-fit: cover;
 }
 
 </style>

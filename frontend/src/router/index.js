@@ -1,10 +1,12 @@
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import DefaultLayout from '@/layouts/DefaultLayout.vue';
 import authService from '@/services/authService';
+import { useAuthStore } from '@/stores/authStore';
 import FeedView from '@/views/FeedView.vue';
 import LoginView from '@/views/LoginView.vue';
 import RegisterView from '@/views/RegisterView.vue';
 import { createRouter, createWebHistory } from 'vue-router'
+import pinia from '@/pinia';
 
 const routes = [
   {
@@ -46,8 +48,18 @@ const router = createRouter({
   routes: routes,
 })
 
-router.beforeEach((to) => {
-  const isAuthenticated = authService.isAuthenticated();
+router.beforeEach( async (to) => {
+  const authStore = useAuthStore(pinia);
+
+  if (!authStore.initialized) {
+    if (authService.getToken) {
+      await authStore.loadUser()
+    } else {
+      authStore.initialized = true;
+    }
+  }
+
+  const isAuthenticated = authStore.isAuthenticated;
 
   if (to.meta.requiresAuth && ! isAuthenticated) {
       return { name: 'login' }

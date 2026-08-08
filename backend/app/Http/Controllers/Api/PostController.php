@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 class PostController extends Controller
 {
     public function __construct(
-        private PostService $postService
+        private PostService $postService,
     ){}
 
     public function show(Post $post)
@@ -55,6 +55,7 @@ class PostController extends Controller
     {
         $posts = $this->postService->feed($request->user());
 
-        return response()->json(['data' => PostResource::collection($posts)]);
+        return response()->json(PostResource::collection($posts));
     }
+
 }

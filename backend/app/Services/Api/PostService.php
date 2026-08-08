@@ -83,12 +83,13 @@ class PostService
 
         $followingIds->push($user->id);
 
-        $posts = Post::query()
+        $data = Post::query()
             ->whereIn('user_id', $followingIds)
             ->latest()
-            ->with(['user', 'images'])
+            ->with(['user', 'images', 'likes'])
+            ->withCount('likes')
             ->paginate(10);
-        
-            return $posts;
+
+        return $data;
     }
 }

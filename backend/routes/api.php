@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\FileController;
 use App\Http\Controllers\Api\FollowController;
 use App\Http\Controllers\Api\LikeController;
 use App\Http\Controllers\Api\PostController;

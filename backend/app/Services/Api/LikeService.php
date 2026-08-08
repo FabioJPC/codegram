@@ -29,8 +29,8 @@ class LikeService
         }
 
         return [
-            'liked'       => $isLiked,
-            'likes_count' => $post->likes()->count()
+            'isLikedByMe'     => $isLiked,
+            'likesCount'    => $post->likes()->count()
         ];
     }
 
@@ -43,15 +43,13 @@ class LikeService
         $isLiked = true;
 
         if ($like) {
-            $this->authorizeOwnership($user, $like);
-
             $like->delete();
             $isLiked = false;
         }
 
         return [
-            'liked'       => $isLiked,
-            'likes_count' => $post->likes()->count()
+            'isLikedByMe'     => $isLiked,
+            'likesCount'    => $post->likes()->count()
         ];
     }
 }
