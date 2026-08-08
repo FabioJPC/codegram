@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CommentController;
-use App\Http\Controllers\Api\FileController;
 use App\Http\Controllers\Api\FollowController;
 use App\Http\Controllers\Api\LikeController;
 use App\Http\Controllers\Api\PostController;
@@ -27,12 +26,15 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::get('users/{user}/following', [FollowController::class, 'following']);
     Route::post('users/{target}/follow', [FollowController::class, 'follow']);
     Route::delete('users/{target}/follow', [FollowController::class, 'unfollow']);
+    Route::get('users/suggestions', [FollowController::class, 'suggestions']);
 
     // Post
     Route::post('posts', [PostController::class, 'store']);
     Route::get('posts/{post}', [PostController::class, 'show']);
     Route::patch('posts/{post}', [PostController::class, 'update']);
     Route::delete('posts/{post}', [PostController::class, 'destroy']);
+
+    Route::get('users/{user:username}/posts', [UserController::class, 'posts']);
 
     // Comments
     Route::get('posts/{post}/comments', [CommentController::class, 'index']);
@@ -46,5 +48,8 @@ Route::middleware('auth:sanctum')->group(function() {
 
     // Feed
     Route::get('feed', [PostController::class, 'feed']);
+
+    // Users
+    Route::get('users/{user:username}', [UserController::class, 'showProfile']);
 
 });

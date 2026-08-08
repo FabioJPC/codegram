@@ -7,6 +7,7 @@ import LoginView from '@/views/LoginView.vue';
 import RegisterView from '@/views/RegisterView.vue';
 import { createRouter, createWebHistory } from 'vue-router'
 import pinia from '@/pinia';
+import ProfileView from '@/views/ProfileView.vue';
 
 const routes = [
   {
@@ -40,6 +41,34 @@ const routes = [
         component: FeedView
       }
     ]
+  },
+
+  {
+    path: '/profile',
+    component: DefaultLayout,
+    meta: {
+      requiresAuth: true
+    },
+    children: [
+      {
+        path:'',
+        component: ProfileView
+      }
+    ]
+  },
+
+  {
+    path: '/profile/:username',
+    component: DefaultLayout,
+    meta: {
+      requiresAuth: true
+    },
+    children: [
+      {
+        path:'',
+        component: ProfileView
+      }
+    ]
   }
 ];
 
@@ -52,7 +81,7 @@ router.beforeEach( async (to) => {
   const authStore = useAuthStore(pinia);
 
   if (!authStore.initialized) {
-    if (authService.getToken) {
+    if (authService.getToken()) {
       await authStore.loadUser()
     } else {
       authStore.initialized = true;

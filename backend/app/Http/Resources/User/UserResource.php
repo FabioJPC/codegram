@@ -22,6 +22,9 @@ class UserResource extends JsonResource
             'avatarUrl' => $this->profile_photo
                 ? url('storage/' . $this->profile_photo)
                 : null,
+                'postsCount' => $this->posts()->count(),
+            'followersCount' => $this->followers()->count(),
+            'followingCount' => $this->following()->count(),
         ];
     }
 }

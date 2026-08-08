@@ -51,6 +51,18 @@
                 </div>
 
                 <div class="follow-sugestions">
+                    <h3>Sugestões para você</h3>
+
+                    <p v-if="suggestionError">
+                        {{ suggestionError }}
+                    </p>
+
+                    <SuggestionCard
+                        v-for="user in suggestions"
+                        :key="user.id"
+                        :user="user"
+                    />
+
 
                 </div>
             </article>
@@ -66,28 +78,52 @@
 import Logo from '@/components/Logo.vue';
 import Post from '@/components/Post.vue';
 import CreatePostModal from '@/components/CreatePostModal.vue';
+import SuggestionCard from '@/components/SuggestionCard.vue';
 import { getFeed } from '@/services/feedService';
 import { ref, onMounted} from 'vue';
 import { useAuthStore } from '@/stores/authStore';
+import userService from '@/services/userService';
 
 const posts = ref([]);
+const suggestions = ref([]);
+
 const showModal = ref(false);
-const error = ref(null);
-const isLoading = ref(true);
+const isLoading = ref(false);
+
+const postError = ref(null);
+const suggestionError = ref(null)
+
 const authStore = useAuthStore();
 
-onMounted(async ()=> {
+const loadSuggestions = async () => {
+    try {
+        suggestionError.value = null;
+
+        suggestions.value = await userService.getSuggestions();
+    } catch (error) {
+        suggestionError.value = 'Erro ao carregar sugestões.';
+        console.log(error);
+    }
+}
+
+const loadFeed = async () => {
     try {
         isLoading.value = true;
-        error.value = null;
+        postError.value = null;
 
-        const response = await getFeed()
-        posts.value = response || [];
-    } catch (e){
-        error.value = "Erro ao carregar posts: " + e.message;
+        const response = await getFeed();
+
+        posts.value = response || []
+    } catch (error) {
+        postError.value = 'Não foi possível carregar o feed.';
     } finally {
         isLoading.value = false;
     }
+}
+
+onMounted(async ()=> {
+    await loadFeed();
+    await loadSuggestions();
 });
 </script>
 

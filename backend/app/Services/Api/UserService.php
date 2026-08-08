@@ -4,6 +4,7 @@ namespace App\Services\Api;
 
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
 class UserService
@@ -49,5 +50,18 @@ class UserService
         }
 
         return ['data' => $user->fresh()];
+    }
+
+    public function showProfile(User $user): User
+    {
+        return $user;
+    }
+
+    public function posts(User $user): LengthAwarePaginator
+    {
+       return $user->posts()
+            ->latest()
+            ->with('user', 'image', 'likes')
+            ->paginate('12');
     }
 }

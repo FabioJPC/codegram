@@ -4,6 +4,7 @@ namespace App\Services\Api;
 
 use App\Models\User;
 use App\Models\Follow;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class FollowService
@@ -41,5 +42,16 @@ class FollowService
     public function following(User $user, int $perPage): LengthAwarePaginator
     {
         return $user->following()->paginate($perPage);
+    }
+
+    public function suggestions(User $user): Collection
+    {
+        $followingIds = $user->following()->pluck('users.id');
+
+        return User::query()
+            ->where('id', '!=', $user->id)
+            ->whereNotIn('id', $followingIds)
+            ->limit(5)
+            ->get();
     }
 }
