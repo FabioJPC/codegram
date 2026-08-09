@@ -6,12 +6,13 @@ use App\Models\Comment;
 use App\Models\Post;
 use App\Models\User;
 use App\Services\Concerns\AuthorizeOwnership;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class CommentService
 {
     use AuthorizeOwnership;
 
-    public function index(Post $post, int $perPage): array
+    public function index(Post $post, int $perPage): LengthAwarePaginator
     {
         return $post->comments()
             ->with(['user:id,name,username,profile_photo'])

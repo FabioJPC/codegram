@@ -14,20 +14,32 @@ class PostResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $firstImage = $this->images->first();
-
         $user = auth()->user();
 
         return [
             'id' => $this->id,
+
             'caption' => $this->caption,
-            'mediaUrl' => url('storage/' . $firstImage->path),
-            'likesCount' => $this->likes_count,
+
+            'images' => $this->images->map(function ($image) {
+                return [
+                    'id'        => $image->id,
+                    'url'       => url('storage/' . $image->path),
+                    'position'  => $image->position,
+                ];
+            }),
+
             'isLikedByMe' => $user ? $this->likes->contains('user_id', $user->id) : false,
+            'likesCount' => $this->likes_count,
+
+            'commentsCount' => $this->comments_count,
+
             'author' => [
+                'id' => $this->user->id,
                 'username' => $this->user->username,
-                'avatarUrl' => $this->user->avatar_path
-                    ? url('storage/' . $this->user->avatar_path)
+                'name' => $this->user->name,
+                'avatarUrl' => $this->user->profile_photo
+                    ? url('storage/' . $this->user->profile_photo)
                     : null
             ],
         ];

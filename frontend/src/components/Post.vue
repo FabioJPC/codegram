@@ -1,55 +1,60 @@
 <template>
     <article class="card">
         <div class="card-header">
-            <img 
-                v-if="post.author.avatarUrl" 
-                :src="post.author.avatarUrl" 
-                alt="Avatar" 
-                class="avatar-img" 
+            <UserHeader 
+                :avatar-url="post.author.avatarUrl"
+                :clickable="true"
+                :name="post.author.name"
+                :username="post.author.username"
             />
-            <i v-else class="bi bi-person-circle"></i>
-
-            <span class="username">{{ post.author.username }}</span>
         </div>
 
-        <div class="card-content">
-            <img 
-                :src="post.mediaUrl" 
-                :alt="post.mediaCaption" 
-                class="post-media"
-            >
+        <div 
+            class="card-content"
+        >
+            <PostMedia 
+                :images="post.images"
+                @click="openPostDetails" 
+            />
         </div>
 
         <div class="card-footer">
-            <div class="actions">
-                <div class="left-actions">
-                    <i 
-                        :class="[isLiked ? 'bi-heart-fill liked' : 'bi-heart']"
-                        class="bi"
-                        @click = 'toggleLike'
-                    ></i>
-                    <i class="bi bi-chat"></i>
-                    <i class="bi bi-send"></i>
-                </div>
-                <i class="bi bi-bookmark"></i>
-            </div>
-            
-            <p v-if="localLikesCount > 0" class="likes">
-                <b>{{ localLikesCount }}</b>
-            </p>
+            <PostActions
+                :comments-count="localCommentsCount"
+                :is-liked="isLiked"
+                :local-likes-count="localLikesCount"
+                @like = 'toggleLike'
+                @comments = 'openPostDetails'
 
-            <p v-else class="likes">
-                Nenhuma curtida
-            </p>
-
+            />
             <div class="caption"> {{ post.caption }}</div>
+
         </div>
+
+        <PostDetailModal
+            :open="showPostDetails"
+            :post="post"
+            :likesCount="localLikesCount"
+            :commentsCount="localCommentsCount"
+            :is-liked="isLiked"
+            :full-height="true"
+            @close="closePostDetails"
+            @like="toggleLike"
+            @comment-created="incrementCommentsCount"
+            @comment-deleted="decrementCommentsCount"
+        />
     </article>
 </template>
 
 <script setup>
 import { ref } from 'vue';
 import postService from '@/services/postService';
+import PostMedia from './PostMedia.vue';
+import PostActions from './PostActions.vue';
+import PostDetailModal from './PostDetailModal.vue';
+import UserHeader from './UserHeader.vue';
+
+const emit = defineEmits(['open-details']);
 
 const props = defineProps({
     post: {
@@ -60,6 +65,7 @@ const props = defineProps({
             mediaUrl: '',
             caption: '',
             likesCount: 0,
+            commentsCount: 0,
             isLikedByMe: false,
             author: {
                 username: 'usuario',
@@ -69,8 +75,20 @@ const props = defineProps({
     }
 });
 
+const showPostDetails = ref(false);
+
+const openPostDetails = () => {
+    showPostDetails.value = true;
+};
+
+const closePostDetails = () => {
+    showPostDetails.value = false;
+};
+
 const isLiked = ref(props.post.isLikedByMe);
 const localLikesCount = ref(props.post.likesCount);
+
+const localCommentsCount = ref(props.post.commentsCount);
 
 const toggleLike = async () => {
     const previousState = isLiked.value;
@@ -81,15 +99,24 @@ const toggleLike = async () => {
 
     try {
         const response = await postService.toggleLike(props.post.id, previousState);
-        console.log(response);
+
         isLiked.value = response.data.isLikedByMe;
         localLikesCount.value = response.data.likesCount;
+
     } catch (error) {
         isLiked.value = previousState;
         localLikesCount.value = previousCount;
-        // Todo: add visual feedback to user
     }
 }
+const incrementCommentsCount = () => {
+    localCommentsCount.value++;
+};
+
+const decrementCommentsCount = () => {
+    if (localCommentsCount.value > 0) {
+        localCommentsCount.value--;
+    }
+};
 
 </script>
 
@@ -104,25 +131,15 @@ const toggleLike = async () => {
     overflow: hidden;
 }
 
-.actions {
-    font-size: 1.6rem;
-    display: flex;
-    justify-content: space-between;
-}
-
-.left-actions {
-    display: flex;
-    gap: 15px;;
-}
-
-.liked {
-    color: red;
-}
-
 .post-media {
     width: 100%;
     aspect-ratio: 4/5;
     object-fit: cover;
+}
+
+.card-header {
+    max-height: 50px;
+    padding: 0;
 }
 
 </style>

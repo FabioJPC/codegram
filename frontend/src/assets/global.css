@@ -10,6 +10,7 @@
     --bg-transparent: transparent;
     --text-primary: #FFF;
     --text-secondary: rgb(33, 37, 41);
+    --text-tertiary: #ccccccda;
     --button-blue: #2397f7;
     --main-gradient: linear-gradient(90deg,rgba(17, 17, 92, 0.7) 0%, rgba(59, 6, 59, 0.7) 100%);
     --main-darker-gradient: linear-gradient(90deg,rgba(17, 17, 92, 1) 0%, rgba(59, 6, 59, 1) 100%);

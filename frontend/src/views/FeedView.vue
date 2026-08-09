@@ -1,17 +1,6 @@
 <template>
     <div class="feed">
-        <nav class="nav">
-            <div class="logo">
-                <Logo/>
-            </div>
-            <div class="buttons">
-                <i class="bi bi-house-door-fill"></i>
-                <i class="bi bi-search"></i>
-                <i class="bi bi-plus-circle" @click="showModal = true"></i>
-                <i class="bi bi-person-circle"></i>
-            </div>
-        </nav>
-
+        
         <main class="main">
             <div class="stories-container">
                 <div class="placeholders"></div>
@@ -23,7 +12,6 @@
             </div>
 
             <div class="feed-container">
-
                 <div v-if="error" class="error-message">
                     {{ error }}
                 </div>
@@ -38,16 +26,12 @@
 
             <article class="suggestions">
                 <div class="profile-container">
-                    <img 
-                        v-if="authStore.user?.avatarUrl" 
-                        :src="authStore.user.avatarUrl" 
-                        :alt="authStore.user.username"
-                        class="avatar-img" 
+                    <UserHeader
+                        :avatar-url="authStore.user?.avatarUrl"
+                        :username="authStore.user.username"
+                        :name="authStore.user.name"
+                        size="large"
                     />
-
-                    <i v-else class="bi bi-person-circle"></i>
-
-                    <span>{{ authStore.user?.username }}</span>
                 </div>
 
                 <div class="follow-sugestions">
@@ -63,31 +47,24 @@
                         :user="user"
                     />
 
-
                 </div>
             </article>
         </div>
 
-        <CreatePostModal
-            :open="showModal"
-            @close="showModal = false"
-        />
 </template>
 
 <script setup>
-import Logo from '@/components/Logo.vue';
 import Post from '@/components/Post.vue';
-import CreatePostModal from '@/components/CreatePostModal.vue';
 import SuggestionCard from '@/components/SuggestionCard.vue';
 import { getFeed } from '@/services/feedService';
 import { ref, onMounted} from 'vue';
 import { useAuthStore } from '@/stores/authStore';
 import userService from '@/services/userService';
+import UserHeader from '@/components/UserHeader.vue';
 
 const posts = ref([]);
 const suggestions = ref([]);
 
-const showModal = ref(false);
 const isLoading = ref(false);
 
 const postError = ref(null);
@@ -102,7 +79,6 @@ const loadSuggestions = async () => {
         suggestions.value = await userService.getSuggestions();
     } catch (error) {
         suggestionError.value = 'Erro ao carregar sugestões.';
-        console.log(error);
     }
 }
 
@@ -204,8 +180,24 @@ onMounted(async ()=> {
     }
 }
 
+.profile-container {
+    color: var(--text-primary);
+}
+
 .suggestions {
     flex: 3 1 0%;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    margin-top: 8%;
+}
+
+.follow-sugestions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0 15px;
+    color: var(--text-tertiary);
 }
 
 i {
@@ -214,5 +206,12 @@ i {
     cursor: pointer;
     width: 20px;
 }
+
+.profile-avatar {
+    border-radius: 50%;
+    width: 1.8rem;
+}
+
+
 
 </style>

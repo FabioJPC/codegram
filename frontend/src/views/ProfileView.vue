@@ -48,7 +48,7 @@
 
         </section>
 
-                <section class="profile-stats">
+        <section class="profile-stats">
 
             <div class="stat">
                 <strong>{{ profileUser?.postsCount ?? 0 }}</strong>

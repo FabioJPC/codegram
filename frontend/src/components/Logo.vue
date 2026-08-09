@@ -1,10 +1,16 @@
 <template>
-    <div class="logo-component">
-        <img 
-            src="../assets/images/codegram-no-background.png" 
-            alt="Logo da empresa codegram">
-    </div>
+    <router-link to="/feed">
+        <div class="logo-component">
+            <img 
+                src="../assets/images/codegram-no-background.png" 
+                alt="Logo da empresa codegram">
+        </div>
+    </router-link>
 </template>
+
+<script setup>
+import router from '@/router';
+</script>
 
 <style scoped>
     .logo-component {

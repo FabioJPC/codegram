@@ -61,7 +61,7 @@ class UserService
     {
        return $user->posts()
             ->latest()
-            ->with('user', 'image', 'likes')
+            ->with('user', 'images', 'likes')
             ->paginate('12');
     }
 }

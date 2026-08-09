@@ -21,7 +21,12 @@ class PostService
     {
         return $post->load([
             'user',
-            'images'
+            'images',
+            'likes'
+        ])
+        ->loadCount([
+            'likes',
+            'comments'
         ]);
     }
 
@@ -46,12 +51,13 @@ class PostService
                     PostImage::create([
                         'post_id'   => $post->id,
                         'path'      => $path,
-                        'position'  => ($index + 1)
+                        'position'  => $index
                     ]);
                 }
 
                 return $post->load(['user', 'images']);
             });
+            
         } catch (\Throwable $e){
             foreach ($storedPaths as $path) {
                 $this->fileService->deleteImage($path);
@@ -87,7 +93,7 @@ class PostService
             ->whereIn('user_id', $followingIds)
             ->latest()
             ->with(['user', 'images', 'likes'])
-            ->withCount('likes')
+            ->withCount('likes', 'comments')
             ->paginate(10);
 
         return $data;

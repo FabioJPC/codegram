@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Comment\StoreCommentRequest;
+use App\Http\Resources\Comment\CommentResource;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Services\Api\CommentService;
@@ -17,13 +18,13 @@ class CommentController extends Controller
         private CommentService $service
     ){}
 
-    public function index(Request $request, Post $post): JsonResponse
+    public function index(Request $request, Post $post)
     {
         $perPage = (int) $request->query('per_page') ?? 50;
-        return response()->json(['data' => $this->service->index($post, $perPage)]);
+        return CommentResource::collection($this->service->index($post, $perPage));
     }
 
-    public function store(StoreCommentRequest $request, Post $post): JsonResponse
+    public function store(StoreCommentRequest $request, Post $post)
     {
         $comment = $this->service->store(
             $request->user(),
@@ -31,17 +32,14 @@ class CommentController extends Controller
             $request->validated()
         );
 
-        return response()->json([
-            'message'   => 'Comentário enviado com sucesso.',
-            'data'      => $comment
-        ]);
+        return new CommentResource($comment);
     }
 
-    public function update(StoreCommentRequest $request, Comment $comment): JsonResponse
+    public function update(StoreCommentRequest $request, Comment $comment)
     {
         $comment = $this->service->update($request->user() ,$request->validated(), $comment);
 
-        return response()->json(['message' => 'Comentário atualizado', 'data' => $comment]);
+        return new CommentResource($comment);
     }
 
     public function destroy(Request $request, Comment $comment): Response
