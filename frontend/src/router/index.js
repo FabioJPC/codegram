@@ -8,6 +8,7 @@ import RegisterView from '@/views/RegisterView.vue';
 import { createRouter, createWebHistory } from 'vue-router'
 import pinia from '@/pinia';
 import ProfileView from '@/views/ProfileView.vue';
+import EditProfileView from '@/views/EditProfileView.vue';
 
 const routes = [
   {
@@ -53,6 +54,19 @@ const routes = [
       {
         path:'',
         component: ProfileView
+      }
+    ]
+  },
+  {
+    path: '/edit-profile',
+    component: DefaultLayout,
+    meta: {
+      requiresAuth: true
+    },
+    children: [
+      {
+        path: '',
+        component: EditProfileView,
       }
     ]
   },

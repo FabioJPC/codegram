@@ -24,16 +24,9 @@
 
             <router-link 
                 :to="`/profile/${authStore.user?.username}`" 
-                class="nav-link profile-link"
+                class="nav-link"
             >
-                <img 
-                    v-if="authStore.user?.avatarUrl" 
-                    :src="authStore.user.avatarUrl" 
-                    :alt="authStore.user?.username"
-                    class="profile-avatar"
-                />
-
-                <i v-else class="bi bi-person-circle"></i>
+                <i class="bi bi-person-circle"></i>
 
                 <span class="nav-label">Perfil</span>
             </router-link>
@@ -110,27 +103,6 @@ const showModal = ref(false);
 .nav-link:hover .nav-label {
     opacity: 1;
     transform: translateX(0);
-}
-
-.profile-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    text-decoration: none;
-    transition: opacity 0.2s;
-}
-
-.profile-link:hover {
-    opacity: 0.8;
-}
-
-.profile-avatar {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-left: 80px;
 }
 
 .nav-link i {

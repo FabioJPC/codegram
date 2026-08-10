@@ -12,12 +12,12 @@
             </div>
 
             <div class="feed-container">
-                <div v-if="error" class="error-message">
-                    {{ error }}
+                <div v-if="feedStore.error" class="error-message">
+                    {{ feedStore.error }}
                 </div>
 
                 <Post
-                    v-for="post in posts"
+                    v-for="post in feedStore.posts"
                     :key="post.id"
                     :post="post"
                 />
@@ -37,12 +37,12 @@
                 <div class="follow-sugestions">
                     <h3>Sugestões para você</h3>
 
-                    <p v-if="suggestionError">
-                        {{ suggestionError }}
+                    <p v-if="suggestionStore.error">
+                        {{ suggestionStore.error }}
                     </p>
 
                     <SuggestionCard
-                        v-for="user in suggestions"
+                        v-for="user in suggestionStore.suggestions"
                         :key="user.id"
                         :user="user"
                     />
@@ -56,50 +56,23 @@
 <script setup>
 import Post from '@/components/Post.vue';
 import SuggestionCard from '@/components/SuggestionCard.vue';
-import { getFeed } from '@/services/feedService';
 import { ref, onMounted} from 'vue';
 import { useAuthStore } from '@/stores/authStore';
-import userService from '@/services/userService';
 import UserHeader from '@/components/UserHeader.vue';
-
-const posts = ref([]);
-const suggestions = ref([]);
-
-const isLoading = ref(false);
-
-const postError = ref(null);
-const suggestionError = ref(null)
+import { useFeedStore } from '@/stores/feedStore';
+import { useSuggestionStore } from '@/stores/suggestionStore';
 
 const authStore = useAuthStore();
-
-const loadSuggestions = async () => {
-    try {
-        suggestionError.value = null;
-
-        suggestions.value = await userService.getSuggestions();
-    } catch (error) {
-        suggestionError.value = 'Erro ao carregar sugestões.';
-    }
-}
-
-const loadFeed = async () => {
-    try {
-        isLoading.value = true;
-        postError.value = null;
-
-        const response = await getFeed();
-
-        posts.value = response || []
-    } catch (error) {
-        postError.value = 'Não foi possível carregar o feed.';
-    } finally {
-        isLoading.value = false;
-    }
-}
+const suggestionStore = useSuggestionStore()
+const feedStore = useFeedStore()
 
 onMounted(async ()=> {
-    await loadFeed();
-    await loadSuggestions();
+    if (feedStore.posts.length === 0) {
+        await feedStore.loadPosts()
+    }
+    if (suggestionStore.suggestions.length === 0) {
+        suggestionStore.loadSuggestions()
+    }
 });
 </script>
 
@@ -211,7 +184,5 @@ i {
     border-radius: 50%;
     width: 1.8rem;
 }
-
-
 
 </style>

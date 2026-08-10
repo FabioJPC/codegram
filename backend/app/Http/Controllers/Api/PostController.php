@@ -18,7 +18,8 @@ class PostController extends Controller
 
     public function show(Post $post)
     {
-        return response()->json(['data' => $this->postService->show($post)]);
+        $post = $this->postService->show($post);
+        return new PostResource($post);
     }
 
     public function store(CreatePostRequest $request)

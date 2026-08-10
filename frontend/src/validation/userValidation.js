@@ -36,6 +36,16 @@ export function validateEmail(email) {
     return null
 }
 
+export function validateBio(bio) {
+    bio = (bio ?? '').trim()
+
+    if (bio.length > 500) {
+        return 'A bio pode ter no máximo 500 caracteres.'
+    }
+
+    return null
+}
+
 export function validatePassword(password) {
     password = (password ?? '').trim();
 

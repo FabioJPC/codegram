@@ -54,6 +54,20 @@ class UserService
 
     public function showProfile(User $user): User
     {
+        $authUser = auth()->user();
+
+        $user->loadCount([
+            'posts',
+            'followers',
+            'following'
+        ]);
+
+        $user->isFollowing = $authUser
+            ? $authUser->following()
+                ->where('users.id', $user->id)
+                ->exists()
+            : false;
+
         return $user;
     }
 
@@ -62,6 +76,7 @@ class UserService
        return $user->posts()
             ->latest()
             ->with('user', 'images', 'likes')
+            ->withCount('likes', 'comments')
             ->paginate('12');
     }
 }

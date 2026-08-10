@@ -9,12 +9,30 @@ export default {
 
     async getUserProfile(username) {
         const response = await api.get(`users/${username}`);
+        
+        return response.data;
+    },
 
-        return response.data.data;
+    async updateProfile(data) {
+        const response = await api.post('/me', data)
+
+        return response.data
     },
 
     async getUserPosts(username, page = 1){
         const response = await api.get(`users/${username}/posts?page=${page}`);
+
+        return response.data;
+    },
+
+    async getFollowers(userId) {
+        const response = await api.get(`/users/${userId}/followers`)
+
+        return response.data;
+    },
+
+    async getFollowing(userId) {
+        const response = await api.get(`/users/${userId}/following`)
 
         return response.data;
     }

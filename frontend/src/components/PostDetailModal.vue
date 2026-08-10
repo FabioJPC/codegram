@@ -148,9 +148,8 @@
 
 </template>
 
-
 <script setup>
-import { watch, ref } from 'vue';
+import { watch, ref, onMounted } from 'vue';
 import PostActions from './PostActions.vue';
 import PostMedia from './PostMedia.vue';
 import UserHeader from './UserHeader.vue';
@@ -275,6 +274,18 @@ const deleteComment = async (commentId) => {
         console.log(error);
     }
 };
+
+const loadComments = async () => {
+    const response = await postService.getComments(props.post.id)
+
+    comments.value = response.data
+}
+
+onMounted(() => {
+    if (props.open) {
+        loadComments()
+    }
+});
 
 watch(
     () => props.open,

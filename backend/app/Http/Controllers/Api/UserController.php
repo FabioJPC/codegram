@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Profile\UpdateProfileRequest;
 use App\Http\Resources\Post\PostResource;
+use App\Http\Resources\Profile\UserProfileResource;
 use App\Http\Resources\User\UserResource;
 use App\Models\User;
 use App\Services\Api\UserService;
@@ -34,7 +35,7 @@ class UserController extends Controller
 
     public function showProfile(User $user)
     {
-        return new UserResource($this->userService->showProfile($user));
+        return new UserProfileResource($this->userService->showProfile($user));
     }
 
     public function posts(User $user)

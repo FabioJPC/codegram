@@ -65,5 +65,11 @@ export default {
 
     async deleteComment(commentId) {
         return api.delete(`/comments/${commentId}`);
+    },
+
+    async getPost(postId) {
+        const response = await api.get(`/posts/${postId}`);
+
+        return response.data;
     }
 }

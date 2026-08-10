@@ -8,22 +8,34 @@
             />
         </div>
 
-        <button class="follow-button">
-            Seguir
-        </button>
+
+        <span 
+            class="profile-link"
+            @click="goToProfile"
+        >
+            Ver perfil
+        </span>
     
     </div>
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router';
 import UserHeader from './UserHeader.vue';
+import { defineProps } from 'vue';
 
-defineProps({
+const props = defineProps({
     user: {
         type: Object,
         required: true
     }
 });
+
+const router = useRouter();
+
+const goToProfile = () => {
+    router.push(`/profile/${props.user.username}`);
+}
 </script>
 
 <style scoped>
@@ -35,7 +47,7 @@ defineProps({
 }
 
 .suggestion-card:hover {
-    box-shadow: 0px 0px 8px;
+    box-shadow: 0px 10px 15px -10px;
 }
 
 .suggestion-container {
@@ -44,11 +56,12 @@ defineProps({
     color: var(--text-primary);
 }
 
-.follow-button {
-    background-color: transparent;
-    border: none;
+.profile-link {
     color: var(--text-primary);
     font-weight: 200;
     font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
 }
 </style>

@@ -24,6 +24,7 @@ export default {
 
     async getMe() {
         const response = await api.get('/me');
+        console.log(response);
         return response.data.data;
     },
 

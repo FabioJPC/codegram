@@ -36,12 +36,18 @@ class FollowService
 
     public function followers(User $user, int $perPage): LengthAwarePaginator
     {
-        return $user->followers()->paginate($perPage);
+        $followers = $user->followers()->paginate($perPage);
+
+        return $this->attachFollowingState($followers, auth()->user());
     }
 
     public function following(User $user, int $perPage): LengthAwarePaginator
     {
-        return $user->following()->paginate($perPage);
+        $following = $user
+            ->following()
+            ->paginate($perPage);
+
+        return $this->attachFollowingState($following, auth()->user());
     }
 
     public function suggestions(User $user): Collection
@@ -53,5 +59,30 @@ class FollowService
             ->whereNotIn('id', $followingIds)
             ->limit(5)
             ->get();
+    }
+
+    private function attachFollowingState(LengthAwarePaginator $users, ?User $authUser): LengthAwarePaginator
+    {
+        if (!$authUser) {
+            return $users;
+        }
+
+        $followingIds = $authUser
+            ->following()
+            ->pluck('users.id')
+            ->toArray();
+
+        $users->getCollection()->transform(
+            function (User $user) use ($followingIds) {
+                $user->isFollowing = in_array(
+                    $user->id,
+                    $followingIds
+                );
+
+                return $user;
+            }
+        );
+
+        return $users;
     }
 }

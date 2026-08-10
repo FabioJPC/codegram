@@ -46,11 +46,6 @@
                 />
             </form>
 
-            <BaseButton
-                variant="ghost"
-                text="Esqueceu sua senha?"
-            />
-
             <RouterLink to="/register">
                 <BaseButton 
                     variant="outline"

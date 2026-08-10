@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Profile\UserProfileResource;
 use App\Http\Resources\User\UserResource;
 use App\Services\Api\FollowService;
 
@@ -42,13 +43,13 @@ class FollowController extends Controller
     public function followers(User $user)
     {
         $followers = $this->followService->followers($user, 50);
-        return response()->json($followers, 200);
+        return UserProfileResource::collection($followers);
     }
 
     public function following(User $user)
     {
         $following = $this->followService->following($user, 50);
-        return response()->json($following, 200);
+        return UserProfileResource::collection($following);
     }
 
     public function suggestions(Request $request)
