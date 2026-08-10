@@ -1,0 +1,1158 @@
+openapi: 3.0.3
+info:
+  title: Codegram API
+  description: |
+    Documentação da API REST do Codegram (Laravel + Sanctum).
+  version: "1.0.0"
+  contact:
+    name: Codegram
+
+servers:
+  - url: http://localhost:8000/api
+    description: Ambiente local (Laravel dev server / Sail)
+
+tags:
+  - name: Auth
+    description: Registro, login, logout
+  - name: Me
+    description: Usuário autenticado
+  - name: Users
+    description: Perfis de usuário
+  - name: Follow
+    description: Seguir / deixar de seguir, seguidores e sugestões
+  - name: Posts
+    description: Publicações (posts) e feed
+  - name: Comments
+    description: Comentários em posts
+  - name: Likes
+    description: Curtidas em posts
+
+security: []
+
+paths:
+  /login:
+    post:
+      tags: [Auth]
+      summary: Autenticar usuário
+      description: Autentica um usuário com e-mail e senha e retorna um token Sanctum.
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login realizado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '401':
+          description: Credenciais inválidas.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: Credenciais Inválidas.
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /register:
+    post:
+      tags: [Auth]
+      summary: Registrar novo usuário
+      description: Cria um novo usuário e retorna um token Sanctum.
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '200':
+          description: Usuário registrado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /logout:
+    post:
+      tags: [Auth]
+      summary: Logout (token atual)
+      description: Revoga apenas o token de acesso atualmente em uso.
+      operationId: logout
+      security: [{ sanctum: [] }]
+      responses:
+        '204':
+          description: Logout realizado com sucesso (sem conteúdo).
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+
+  /logout-all:
+    post:
+      tags: [Auth]
+      summary: Logout de todos os dispositivos
+      description: Revoga todos os tokens de acesso do usuário autenticado.
+      operationId: logoutAll
+      security: [{ sanctum: [] }]
+      responses:
+        '204':
+          description: Logout realizado com sucesso em todos os dispositivos (sem conteúdo).
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+
+  /me:
+    get:
+      tags: [Me]
+      summary: Obter usuário autenticado
+      description: Retorna os dados (via `UserResource`) do usuário atualmente autenticado.
+      operationId: getMe
+      security: [{ sanctum: [] }]
+      responses:
+        '200':
+          description: Dados do usuário autenticado.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResourceResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+    patch:
+      tags: [Me]
+      summary: Atualizar perfil do usuário autenticado
+      description: |
+        Atualiza os dados do usuário autenticado (nome, bio, e-mail, username e/ou foto de perfil).
+        Retorna o Model `User` "cru" (não é um `UserResource`), portanto os campos são os campos
+        de banco de dados (ex.: `profile_photo`, não `avatarUrl`).
+      operationId: updateMe
+      security: [{ sanctum: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UpdateProfileRequest'
+      responses:
+        '200':
+          description: Perfil atualizado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRawResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /users/{user}/followers:
+    get:
+      tags: [Follow]
+      summary: Listar seguidores de um usuário
+      description: Retorna (paginado, via `UserProfileResource`) os seguidores do usuário informado.
+      operationId: getUserFollowers
+      security: [{ sanctum: [] }]
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+        - $ref: '#/components/parameters/PerPageQuery'
+      responses:
+        '200':
+          description: Lista paginada de seguidores.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfilePaginatedResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{user}/following:
+    get:
+      tags: [Follow]
+      summary: Listar quem um usuário está seguindo
+      description: Retorna (paginado, via `UserProfileResource`) os usuários que o usuário informado está seguindo.
+      operationId: getUserFollowing
+      security: [{ sanctum: [] }]
+      parameters:
+        - $ref: '#/components/parameters/UserIdPath'
+        - $ref: '#/components/parameters/PerPageQuery'
+      responses:
+        '200':
+          description: Lista paginada de usuários seguidos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfilePaginatedResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{target}/follow:
+    post:
+      tags: [Follow]
+      summary: Seguir um usuário
+      operationId: followUser
+      security: [{ sanctum: [] }]
+      parameters:
+        - name: target
+          in: path
+          required: true
+          description: ID do usuário a ser seguido.
+          schema:
+            type: integer
+      responses:
+        '201':
+          description: Usuário seguido com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: Você seguiu este usuário
+        '422':
+          description: "Não foi possível seguir este usuário (ex.: já segue, ou tentativa de seguir a si mesmo)."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: Não foi possível seguir este usuário
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Follow]
+      summary: Deixar de seguir um usuário
+      operationId: unfollowUser
+      security: [{ sanctum: [] }]
+      parameters:
+        - name: target
+          in: path
+          required: true
+          description: ID do usuário a deixar de seguir.
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Deixou de seguir com sucesso (sem conteúdo).
+        '422':
+          description: Não foi possível realizar essa operação.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+              example:
+                message: Não foi possível realizar essa operação
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/suggestions:
+    get:
+      tags: [Follow]
+      summary: Sugestões de usuários para seguir
+      description: Retorna até 5 usuários (via `UserResource`) que o usuário autenticado ainda não segue.
+      operationId: getUserSuggestions
+      security: [{ sanctum: [] }]
+      responses:
+        '200':
+          description: Lista de usuários sugeridos.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResourceCollectionResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+
+  /posts:
+    post:
+      tags: [Posts]
+      summary: Criar novo post
+      description: |
+        Cria um novo post com 1 a 10 imagens.
+        Retorna o Model `Post` "cru" (não é um `PostResource`), com as relações
+        `user` e `images` carregadas em seus formatos de banco de dados.
+      operationId: createPost
+      security: [{ sanctum: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreatePostRequest'
+      responses:
+        '201':
+          description: Post criado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostRawResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /posts/{post}:
+    get:
+      tags: [Posts]
+      summary: Exibir um post
+      description: Retorna um post (via `PostResource`), incluindo contagem de curtidas/comentários e se o usuário autenticado curtiu.
+      operationId: getPost
+      security: [{ sanctum: [] }]
+      parameters:
+        - $ref: '#/components/parameters/PostIdPath'
+      responses:
+        '200':
+          description: Dados do post.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostResourceResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Posts]
+      summary: Atualizar um post
+      description: |
+        Atualiza a legenda (`caption`) de um post. Apenas o dono do post pode editá-lo (403 caso contrário).
+        Retorna o Model `Post` "cru" (não é um `PostResource`).
+      operationId: updatePost
+      security: [{ sanctum: [] }]
+      parameters:
+        - $ref: '#/components/parameters/PostIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePostRequest'
+      responses:
+        '200':
+          description: Post atualizado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostRawResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      tags: [Posts]
+      summary: Excluir um post
+      description: Exclui um post (e suas imagens em disco). Apenas o dono do post pode excluí-lo (403 caso contrário).
+      operationId: deletePost
+      security: [{ sanctum: [] }]
+      parameters:
+        - $ref: '#/components/parameters/PostIdPath'
+      responses:
+        '204':
+          description: Post excluído com sucesso (sem conteúdo).
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /users/{username}/posts:
+    get:
+      tags: [Users]
+      summary: Listar posts de um usuário
+      description: Retorna (paginado, via `PostResource`) os posts do usuário informado, do mais recente para o mais antigo.
+      operationId: getUserPosts
+      security: [{ sanctum: [] }]
+      parameters:
+        - $ref: '#/components/parameters/UsernamePath'
+      responses:
+        '200':
+          description: Lista paginada de posts do usuário.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PostPaginatedResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /posts/{post}/comments:
+    get:
+      tags: [Comments]
+      summary: Listar comentários de um post
+      description: Retorna (paginado, via `CommentResource`) os comentários do post informado.
+      operationId: getPostComments
+      security: [{ sanctum: [] }]
+      parameters:
+        - $ref: '#/components/parameters/PostIdPath'
+        - name: per_page
+          in: query
+          required: false
+          description: Quantidade de itens por página (padrão de 50 é aplicado pelo controller, embora `??` não afete `(int)` corretamente quando ausente — o valor padrão real de `Request::query('per_page')` é usado após a conversão para int).
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: Lista paginada de comentários.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentPaginatedResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    post:
+      tags: [Comments]
+      summary: Criar comentário em um post
+      operationId: createComment
+      security: [{ sanctum: [] }]
+      parameters:
+        - $ref: '#/components/parameters/PostIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreCommentRequest'
+      responses:
+        '200':
+          description: Comentário criado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentResourceResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /comments/{comment}:
+    patch:
+      tags: [Comments]
+      summary: Atualizar um comentário
+      description: Atualiza o texto de um comentário. Apenas o autor do comentário pode editá-lo (403 caso contrário).
+      operationId: updateComment
+      security: [{ sanctum: [] }]
+      parameters:
+        - $ref: '#/components/parameters/CommentIdPath'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StoreCommentRequest'
+      responses:
+        '200':
+          description: Comentário atualizado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommentResourceResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      tags: [Comments]
+      summary: Excluir um comentário
+      description: Exclui um comentário. Apenas o autor do comentário pode excluí-lo (403 caso contrário).
+      operationId: deleteComment
+      security: [{ sanctum: [] }]
+      parameters:
+        - $ref: '#/components/parameters/CommentIdPath'
+      responses:
+        '204':
+          description: Comentário excluído com sucesso (sem conteúdo).
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /posts/{post}/likes:
+    post:
+      tags: [Likes]
+      summary: Curtir um post
+      description: Curte um post em nome do usuário autenticado (idempotente — se já curtido, apenas retorna o estado atual).
+      operationId: likePost
+      security: [{ sanctum: [] }]
+      parameters:
+        - $ref: '#/components/parameters/PostIdPath'
+      responses:
+        '200':
+          description: Estado da curtida após a operação.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LikeToggleResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Likes]
+      summary: Remover curtida de um post
+      description: Remove a curtida do usuário autenticado em um post (idempotente).
+      operationId: unlikePost
+      security: [{ sanctum: [] }]
+      parameters:
+        - $ref: '#/components/parameters/PostIdPath'
+      responses:
+        '200':
+          description: Estado da curtida após a operação.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LikeToggleResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /feed:
+    get:
+      tags: [Posts]
+      summary: Feed do usuário autenticado
+      description: |
+        Retorna os posts do usuário autenticado e de quem ele segue (10 por página, ordenados do
+        mais recente para o mais antigo), via `PostResource`.
+
+        ⚠️ Diferente de outros endpoints paginados, aqui a resposta é gerada com
+        `response()->json(PostResource::collection($paginator))`, o que faz o Laravel **não**
+        incluir os metadados de paginação (`links`/`meta`) — apenas a chave `data`.
+      operationId: getFeed
+      security: [{ sanctum: [] }]
+      responses:
+        '200':
+          description: Lista de posts do feed (sem metadados de paginação).
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeedResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+
+  /users/{username}:
+    get:
+      tags: [Users]
+      summary: Exibir perfil público de um usuário
+      description: Retorna o perfil (via `UserProfileResource`) do usuário informado pelo `username`, incluindo se o usuário autenticado o segue.
+      operationId: getUserProfile
+      security: [{ sanctum: [] }]
+      parameters:
+        - $ref: '#/components/parameters/UsernamePath'
+      responses:
+        '200':
+          description: Perfil do usuário.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfileResourceResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  securitySchemes:
+    sanctum:
+      type: http
+      scheme: bearer
+      bearerFormat: 'Sanctum Personal Access Token'
+      description: |
+        Token retornado por `/login` ou `/register` (campo `data.token`), enviado no
+        cabeçalho `Authorization: Bearer {token}`.
+
+  parameters:
+    UserIdPath:
+      name: user
+      in: path
+      required: true
+      description: ID do usuário (vinculação de rota padrão pela chave primária).
+      schema:
+        type: integer
+    UsernamePath:
+      name: username
+      in: path
+      required: true
+      description: Username do usuário (vinculação de rota pela coluna `username`).
+      schema:
+        type: string
+    PostIdPath:
+      name: post
+      in: path
+      required: true
+      description: ID do post.
+      schema:
+        type: integer
+    CommentIdPath:
+      name: comment
+      in: path
+      required: true
+      description: ID do comentário.
+      schema:
+        type: integer
+    PerPageQuery:
+      name: per_page
+      in: query
+      required: false
+      description: Quantidade de itens por página.
+      schema:
+        type: integer
+        default: 50
+
+  responses:
+    ValidationError:
+      description: Dados de entrada inválidos.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ValidationErrorResponse'
+    Unauthenticated:
+      description: Não autenticado (token ausente/inválido).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MessageResponse'
+          example:
+            message: Unauthenticated.
+    Forbidden:
+      description: Ação não permitida para o usuário autenticado (não é o dono do recurso).
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MessageResponse'
+          example:
+            message: Você não tem permissão para realizar esta ação
+    NotFound:
+      description: Recurso não encontrado.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/MessageResponse'
+          example:
+            message: 'No query results for model [App\Models\Post] 999'
+
+  schemas:
+    # ---------- Request bodies ----------
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+
+    RegisterRequest:
+      type: object
+      required: [name, email, password, password_confirmation, username]
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 255
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        password:
+          type: string
+          format: password
+          minLength: 8
+          description: Deve conter letras, números e símbolos.
+        password_confirmation:
+          type: string
+          format: password
+          description: Deve ser igual a `password` (regra `confirmed`).
+        username:
+          type: string
+          minLength: 3
+          maxLength: 30
+          pattern: '^[a-zA-Z0-9_-]+$'
+          description: Apenas letras, números, hífens e underlines (`alpha_dash`). Deve ser único.
+
+    UpdateProfileRequest:
+      type: object
+      description: Todos os campos são opcionais (`sometimes`).
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        bio:
+          type: string
+          maxLength: 500
+          nullable: true
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        username:
+          type: string
+          minLength: 3
+          maxLength: 30
+          pattern: '^[a-zA-Z0-9_-]+$'
+        profile_photo:
+          type: string
+          format: binary
+          nullable: true
+          description: Imagem jpg, jpeg, png ou webp, até 5MB (5120KB).
+
+    CreatePostRequest:
+      type: object
+      required: [images]
+      properties:
+        images:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items:
+            type: string
+            format: binary
+            description: Imagem jpg, jpeg, png ou webp, até 5MB (5120KB) cada.
+        caption:
+          type: string
+          maxLength: 2000
+          nullable: true
+
+    UpdatePostRequest:
+      type: object
+      properties:
+        caption:
+          type: string
+          maxLength: 2000
+          nullable: true
+          description: Campo opcional (`sometimes`).
+
+    StoreCommentRequest:
+      type: object
+      required: [comment]
+      properties:
+        comment:
+          type: string
+          minLength: 1
+          maxLength: 1000
+
+    # ---------- Raw Eloquent models (returned as-is by some endpoints) ----------
+    UserRaw:
+      type: object
+      description: Model `User` do Eloquent serializado diretamente (campos `password` e `remember_token` são ocultos).
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+        bio:
+          type: string
+          nullable: true
+        profile_photo:
+          type: string
+          nullable: true
+          description: Caminho relativo do arquivo armazenado (não é uma URL completa).
+        email_verified_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    PostImageRaw:
+      type: object
+      description: Model `PostImage` do Eloquent serializado diretamente.
+      properties:
+        id:
+          type: integer
+        post_id:
+          type: integer
+        path:
+          type: string
+          description: Caminho relativo do arquivo armazenado (não é uma URL completa).
+        position:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    PostRaw:
+      type: object
+      description: Model `Post` do Eloquent serializado diretamente, com as relações `user` e `images` carregadas.
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        caption:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/UserRaw'
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostImageRaw'
+
+    # ---------- API Resources ----------
+    UserResource:
+      type: object
+      description: "Formato retornado por `UserResource` (ex.: `GET /me`, sugestões de usuários)."
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        username:
+          type: string
+        bio:
+          type: string
+          nullable: true
+        avatarUrl:
+          type: string
+          format: uri
+          nullable: true
+        postsCount:
+          type: integer
+        followersCount:
+          type: integer
+        followingCount:
+          type: integer
+
+    UserProfileResource:
+      type: object
+      description: Formato retornado por `UserProfileResource` (perfis públicos, seguidores/seguindo).
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        name:
+          type: string
+        bio:
+          type: string
+          nullable: true
+        avatarUrl:
+          type: string
+          format: uri
+          nullable: true
+        postsCount:
+          type: integer
+        followersCount:
+          type: integer
+        followingCount:
+          type: integer
+        isFollowing:
+          type: boolean
+          description: Indica se o usuário autenticado segue este usuário (`false` se não autenticado).
+
+    PostImageResource:
+      type: object
+      properties:
+        id:
+          type: integer
+        url:
+          type: string
+          format: uri
+        position:
+          type: integer
+
+    PostAuthor:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        name:
+          type: string
+        avatarUrl:
+          type: string
+          format: uri
+          nullable: true
+
+    PostResource:
+      type: object
+      description: Formato retornado por `PostResource`.
+      properties:
+        id:
+          type: integer
+        caption:
+          type: string
+          nullable: true
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostImageResource'
+        isLikedByMe:
+          type: boolean
+        likesCount:
+          type: integer
+        commentsCount:
+          type: integer
+        author:
+          $ref: '#/components/schemas/PostAuthor'
+
+    CommentUser:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        name:
+          type: string
+        avatarUrl:
+          type: string
+          format: uri
+          nullable: true
+
+    CommentResource:
+      type: object
+      description: Formato retornado por `CommentResource`.
+      properties:
+        id:
+          type: integer
+        comment:
+          type: string
+        isMine:
+          type: boolean
+          description: Indica se o comentário pertence ao usuário autenticado.
+        user:
+          $ref: '#/components/schemas/CommentUser'
+
+    LikeToggleResult:
+      type: object
+      properties:
+        isLikedByMe:
+          type: boolean
+        likesCount:
+          type: integer
+
+    # ---------- Envelopes / top-level responses ----------
+    AuthResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            user:
+              $ref: '#/components/schemas/UserRaw'
+            token:
+              type: string
+              description: Token de acesso Sanctum (`plainTextToken`).
+            token_type:
+              type: string
+              example: Bearer
+
+    UserRawResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/UserRaw'
+
+    UserResourceResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/UserResource'
+
+    UserResourceCollectionResponse:
+      type: object
+      description: Coleção não paginada de `UserResource`.
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserResource'
+
+    UserProfileResourceResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/UserProfileResource'
+
+    PostResourceResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/PostResource'
+
+    PostRawResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/PostRaw'
+
+    CommentResourceResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/CommentResource'
+
+    LikeToggleResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/LikeToggleResult'
+
+    FeedResponse:
+      type: object
+      description: Resposta do feed — apenas `data`, sem metadados de paginação (ver descrição do endpoint).
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostResource'
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: The given data was invalid.
+        errors:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+    PaginationLinks:
+      type: object
+      properties:
+        first:
+          type: string
+          format: uri
+          nullable: true
+        last:
+          type: string
+          format: uri
+          nullable: true
+        prev:
+          type: string
+          format: uri
+          nullable: true
+        next:
+          type: string
+          format: uri
+          nullable: true
+
+    PaginationMeta:
+      type: object
+      properties:
+        current_page:
+          type: integer
+        from:
+          type: integer
+          nullable: true
+        last_page:
+          type: integer
+        links:
+          type: array
+          items:
+            type: object
+            properties:
+              url:
+                type: string
+                nullable: true
+              label:
+                type: string
+              active:
+                type: boolean
+        path:
+          type: string
+        per_page:
+          type: integer
+        to:
+          type: integer
+          nullable: true
+        total:
+          type: integer
+
+    UserProfilePaginatedResponse:
+      type: object
+      description: Coleção paginada padrão do Laravel (`data` + `links` + `meta`) de `UserProfileResource`.
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserProfileResource'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    PostPaginatedResponse:
+      type: object
+      description: Coleção paginada padrão do Laravel (`data` + `links` + `meta`) de `PostResource`.
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PostResource'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+
+    CommentPaginatedResponse:
+      type: object
+      description: Coleção paginada padrão do Laravel (`data` + `links` + `meta`) de `CommentResource`.
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommentResource'
+        links:
+          $ref: '#/components/schemas/PaginationLinks'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'

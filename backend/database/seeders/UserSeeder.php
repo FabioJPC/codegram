@@ -3,13 +3,18 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use App\Services\Api\FileService;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class UserSeeder extends Seeder
 {
+    public function __construct(
+        private FileService $fileService
+    ) {}
+
     public function run(): void
     {
         $users = [
@@ -102,20 +107,20 @@ class UserSeeder extends Seeder
             $user = User::create($userData);
 
             $avatar = "seed-images/avatars/" . ($index + 1) . ".jpg";
+            $avatarAbsolutePath = Storage::disk('public')->path($avatar);
 
-            $extension = pathinfo($avatar, PATHINFO_EXTENSION);
-
-            $filename = Str::uuid() . '.' . $extension;
-
-            $destination = "profile/{$user->id}/{$filename}";
-
-            Storage::disk('public')->put(
-                $destination,
-                Storage::disk('public')->get($avatar)
+            $uploadedAvatar = new UploadedFile(
+                $avatarAbsolutePath,
+                basename($avatarAbsolutePath),
+                Storage::disk('public')->mimeType($avatar),
+                null,
+                true
             );
 
+            $storedPath = $this->fileService->storeProfilePhoto($uploadedAvatar);
+
             $user->update([
-                'profile_photo' => $destination,
+                'profile_photo' => $storedPath,
             ]);
         }
     }
