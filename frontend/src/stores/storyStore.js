@@ -1,76 +1,58 @@
 import { defineStore } from 'pinia';
-
-// Dados mockados apenas para o frontend — o backend ainda não tem uma
-// feature de stories. Quando existir, essa carga deve vir de um storyService.
-const MOCK_STORIES = [
-    {
-        id: 1,
-        username: 'ana.dev',
-        avatarUrl: 'https://i.pravatar.cc/150?img=5',
-        seen: false,
-        items: [
-            { id: 11, mediaUrl: 'https://picsum.photos/seed/story-1a/720/1280', duration: 5000 },
-            { id: 12, mediaUrl: 'https://picsum.photos/seed/story-1b/720/1280', duration: 5000 },
-        ],
-    },
-    {
-        id: 2,
-        username: 'joao.silva',
-        avatarUrl: 'https://i.pravatar.cc/150?img=12',
-        seen: false,
-        items: [
-            { id: 21, mediaUrl: 'https://picsum.photos/seed/story-2a/720/1280', duration: 5000 },
-        ],
-    },
-    {
-        id: 3,
-        username: 'marina.costa',
-        avatarUrl: 'https://i.pravatar.cc/150?img=32',
-        seen: false,
-        items: [
-            { id: 31, mediaUrl: 'https://picsum.photos/seed/story-3a/720/1280', duration: 4000 },
-            { id: 32, mediaUrl: 'https://picsum.photos/seed/story-3b/720/1280', duration: 4000 },
-            { id: 33, mediaUrl: 'https://picsum.photos/seed/story-3c/720/1280', duration: 4000 },
-        ],
-    },
-    {
-        id: 4,
-        username: 'pedro.lima',
-        avatarUrl: 'https://i.pravatar.cc/150?img=15',
-        seen: false,
-        items: [
-            { id: 41, mediaUrl: 'https://picsum.photos/seed/story-4a/720/1280', duration: 5000 },
-        ],
-    },
-    {
-        id: 5,
-        username: 'carla.souza',
-        avatarUrl: 'https://i.pravatar.cc/150?img=45',
-        seen: false,
-        items: [
-            { id: 51, mediaUrl: 'https://picsum.photos/seed/story-5a/720/1280', duration: 5000 },
-            { id: 52, mediaUrl: 'https://picsum.photos/seed/story-5b/720/1280', duration: 5000 },
-        ],
-    },
-    {
-        id: 6,
-        username: 'bruno.rocha',
-        avatarUrl: 'https://i.pravatar.cc/150?img=51',
-        seen: false,
-        items: [
-            { id: 61, mediaUrl: 'https://picsum.photos/seed/story-6a/720/1280', duration: 5000 },
-        ],
-    },
-];
+import storyService from '@/services/storyService';
 
 export const useStoryStore = defineStore('story', {
     state: () => ({
-        stories: MOCK_STORIES.map((story) => ({ ...story, items: [...story.items] })),
+        stories: [],
+        error: null,
     }),
 
     actions: {
-        // Marca os stories de um usuário como vistos e manda ele pro final
-        // da fila, igual ao comportamento do Instagram.
+        async loadStories() {
+            this.error = null;
+
+            try {
+                const stories = await storyService.getFeed();
+
+                this.stories = this.groupByAuthor(stories);
+
+            } catch (e) {
+                this.error = 'Não foi possível carregar os stories.';
+                console.log(e);
+            }
+        },
+
+        groupByAuthor(stories) {
+            const groups = [];
+            const groupsByAuthorId = new Map();
+
+            for (const story of stories) {
+                const author = story.author;
+
+                let group = groupsByAuthorId.get(author.id);
+
+                if (!group) {
+                    group = {
+                        id: author.id,
+                        username: author.username,
+                        avatarUrl: author.avatarUrl,
+                        seen: false,
+                        items: [],
+                    };
+
+                    groupsByAuthorId.set(author.id, group);
+                    groups.push(group);
+                }
+
+                group.items.push({
+                    id: story.id,
+                    mediaUrl: story.url,
+                });
+            }
+
+            return groups;
+        },
+
         markAsSeen(userId) {
             const index = this.stories.findIndex((story) => story.id === userId);
 

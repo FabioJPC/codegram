@@ -2,6 +2,10 @@
     <div class="feed">
         
         <main class="main">
+            <div v-if="storyStore.error" class="error-message">
+                {{ storyStore.error }}
+            </div>
+
             <StoriesBar />
 
             <div class="feed-container">
@@ -55,10 +59,12 @@ import { useAuthStore } from '@/stores/authStore';
 import UserHeader from '@/components/UserHeader.vue';
 import { useFeedStore } from '@/stores/feedStore';
 import { useSuggestionStore } from '@/stores/suggestionStore';
+import { useStoryStore } from '@/stores/storyStore';
 
 const authStore = useAuthStore();
 const suggestionStore = useSuggestionStore()
 const feedStore = useFeedStore()
+const storyStore = useStoryStore()
 
 onMounted(async ()=> {
     if (feedStore.posts.length === 0) {
@@ -66,6 +72,9 @@ onMounted(async ()=> {
     }
     if (suggestionStore.suggestions.length === 0) {
         suggestionStore.loadSuggestions()
+    }
+    if (storyStore.stories.length === 0) {
+        storyStore.loadStories()
     }
 });
 </script>
