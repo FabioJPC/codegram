@@ -19,7 +19,7 @@
                         >
                         <i
                             v-else
-                            class="bi bi-person-circle"
+                            class="bi bi-person-circle avatar"
                         ></i>
                     </div>
 
@@ -251,6 +251,10 @@ onMounted(() => {
     align-items: center;
 }
 
+.avatar {
+    font-size: 6rem;
+}
+
 .edit-profile-header {
     flex: 1
 }
@@ -271,6 +275,7 @@ onMounted(() => {
 }
 
 .custom-input {
+    padding: 10px;
     color: var(--text-primary);
     background-color: var(--bg-semi-transparent);
     border: 1px solid #333;

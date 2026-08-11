@@ -38,7 +38,7 @@ class UpdateProfileRequest extends FormRequest
                     'string',
                     'min:3' ,
                     'max:30',
-                    'alpha_dash',
+                    'regex:/^[a-zA-Z0-9._-]+$/',
                     Rule::unique('users', 'username')->ignore($this->user()->id),
             ],
         ];
@@ -64,7 +64,7 @@ class UpdateProfileRequest extends FormRequest
             'username.string' => 'O nome de usuário deve ser um texto.',
             'username.min' => 'O nome de usuário deve ter pelo menos 3 caracteres.',
             'username.max' => 'O nome de usuário pode ter no máximo 30 caracteres.',
-            'username.alpha_dash' => 'O nome de usuário pode conter apenas letras, números, hífens e underlines.',
+            'username.regex' => 'O nome de usuário pode conter apenas letras, números, pontos, hífens e underlines.',
             'username.unique' => 'Este nome de usuário já está em uso.',
         ];
     }

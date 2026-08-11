@@ -22,11 +22,16 @@ export const useFeedStore = defineStore('feed', () => {
         }
     }
 
+    const removePost = (postId) => {
+        posts.value = posts.value.filter(post => post.id !== postId);
+    }
+
     return {
         posts,
         currentPage,
         lastPage,
         hasMore,
-        loadPosts
+        loadPosts,
+        removePost
     }
 })

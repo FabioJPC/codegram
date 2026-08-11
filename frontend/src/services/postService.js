@@ -71,5 +71,9 @@ export default {
         const response = await api.get(`/posts/${postId}`);
 
         return response.data;
+    },
+
+    async deletePost(postId) {
+        return api.delete(`/posts/${postId}`);
     }
 }

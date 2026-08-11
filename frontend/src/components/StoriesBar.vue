@@ -37,8 +37,6 @@ const activeStoryId = ref(null);
 const storyIdsSnapshot = ref([]);
 
 const openStory = (id) => {
-    // Congela a ordem atual da fila: o viewer navega por essa lista fixa
-    // para não pular usuários quando um story vai pro final da fila.
     storyIdsSnapshot.value = storyStore.stories.map((story) => story.id);
     activeStoryId.value = id;
 };
@@ -50,8 +48,10 @@ const closeStory = () => {
 
 <style scoped>
 .stories-bar {
+    width: 100%;
     display: flex;
-    gap: 18px;
+    gap: 40px;
+    justify-content: center;
     align-items: flex-start;
     padding: 6px 4px;
     overflow-x: auto;
@@ -76,8 +76,8 @@ const closeStory = () => {
 }
 
 .ring {
-    width: 66px;
-    height: 66px;
+    width: 100px;
+    height: 100px;
     border-radius: 50%;
     padding: 2.5px;
     background: linear-gradient(45deg, #f9ce34 0%, #ee2a7b 50%, #6228d7 100%);

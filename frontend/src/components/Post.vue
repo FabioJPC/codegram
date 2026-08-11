@@ -42,6 +42,7 @@
             @like="toggleLike"
             @comment-created="incrementCommentsCount"
             @comment-deleted="decrementCommentsCount"
+            @deleted="$emit('deleted', post.id)"
         />
     </article>
 </template>
@@ -54,7 +55,7 @@ import PostActions from './PostActions.vue';
 import PostDetailModal from './PostDetailModal.vue';
 import UserHeader from './UserHeader.vue';
 
-const emit = defineEmits(['open-details']);
+const emit = defineEmits(['open-details', 'deleted']);
 
 const props = defineProps({
     post: {

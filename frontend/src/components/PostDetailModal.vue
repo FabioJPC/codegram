@@ -27,13 +27,23 @@
             <div class="post-detail-content">
                 <header class="post-detail-header">
                     <div class="author">
-                        <UserHeader 
+                        <UserHeader
                             :avatarUrl="post.author.avatarUrl"
                             :username="post.author.username"
                             :name="post.author.name"
                             size="medium"
                         />
                     </div>
+
+                    <button
+                        v-if="isOwner"
+                        type="button"
+                        class="delete-button"
+                        title="Excluir publicação"
+                        @click="showDeleteConfirm = true"
+                    >
+                        <i class="bi bi-trash"></i>
+                    </button>
                 </header>
 
 
@@ -146,19 +156,36 @@
 
     </div>
 
+    <ConfirmModal
+        :open="showDeleteConfirm"
+        title="Excluir publicação?"
+        message="Essa ação não pode ser desfeita."
+        confirm-text="Excluir"
+        danger
+        :loading="deletingPost"
+        @cancel="showDeleteConfirm = false"
+        @confirm="handleDelete"
+    />
+
 </template>
 
 <script setup>
-import { watch, ref, onMounted } from 'vue';
+import { watch, ref, computed, onMounted } from 'vue';
 import PostActions from './PostActions.vue';
 import PostMedia from './PostMedia.vue';
 import UserHeader from './UserHeader.vue';
+import ConfirmModal from './ConfirmModal.vue';
 import postService from '@/services/postService.js';
+import { useAuthStore } from '@/stores/authStore';
+
+const authStore = useAuthStore();
 
 const comments = ref([]);
 const newComment = ref('');
 const editingCommentId = ref(null);
 const editingCommentText = ref('');
+const showDeleteConfirm = ref(false);
+const deletingPost = ref(false);
 
 const props = defineProps({
     open: {
@@ -192,14 +219,40 @@ const props = defineProps({
     }
 });
 const emit = defineEmits([
-    'close', 
-    'like', 
+    'close',
+    'like',
     'comment-created',
-    'comment-deleted'
+    'comment-deleted',
+    'deleted'
 ]);
 
+const isOwner = computed(() => {
+    return authStore.user?.id === props.post.author?.id;
+});
+
 const close = () => {
+    showDeleteConfirm.value = false;
     emit('close');
+};
+
+const handleDelete = async () => {
+    if (deletingPost.value) return;
+
+    deletingPost.value = true;
+
+    try {
+        await postService.deletePost(props.post.id);
+
+        showDeleteConfirm.value = false;
+
+        emit('deleted', props.post.id);
+
+        close();
+    } catch (error) {
+        console.log(error);
+    } finally {
+        deletingPost.value = false;
+    }
 };
 
 const createComment = async () => {
@@ -337,6 +390,22 @@ watch(
 
 .post-detail-header {
     flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.delete-button {
+    border: none;
+    background: transparent;
+    color: var(--text-tertiary);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 6px;
+}
+
+.delete-button:hover {
+    color: #d64545;
 }
 
 .post-detail-body {
