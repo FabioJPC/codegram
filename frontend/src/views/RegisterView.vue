@@ -85,7 +85,6 @@
 import BaseButton from '@/components/BaseButton.vue';
 import BaseFormInput from '@/components/BaseFormInput.vue';
 import router from '@/router';
-import authService from '@/services/authService';
 import { 
     confirmPassword, 
     validateName, 

@@ -26,12 +26,19 @@ export const useFeedStore = defineStore('feed', () => {
         posts.value = posts.value.filter(post => post.id !== postId);
     }
 
+    const $reset = () => {
+        posts.value = [];
+        currentPage.value = 1;
+        lastPage.value = null;
+    }
+
     return {
         posts,
         currentPage,
         lastPage,
         hasMore,
         loadPosts,
-        removePost
+        removePost,
+        $reset
     }
 })

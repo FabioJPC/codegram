@@ -1,7 +1,33 @@
 <template>
     <div class="stories-bar">
+        <div class="story-avatar own">
+            <button
+                type="button"
+                class="ring-button"
+                :class="{ seen: ownStory?.seen, empty: !ownStory }"
+                @click="handleOwnClick"
+            >
+                <span class="ring">
+                    <span class="ring-gap">
+                        <img
+                            v-if="authStore.user?.avatarUrl"
+                            :src="authStore.user.avatarUrl"
+                            :alt="authStore.user?.username"
+                        />
+                        <i v-else class="bi bi-person-circle"></i>
+                    </span>
+                </span>
+
+                <span class="add-badge" @click.stop="openCreateModal">
+                    <i class="bi bi-plus-circle-fill"></i>
+                </span>
+            </button>
+
+            <span class="username">Seu story</span>
+        </div>
+
         <button
-            v-for="story in storyStore.stories"
+            v-for="story in otherStories"
             :key="story.id"
             type="button"
             class="story-avatar"
@@ -10,7 +36,8 @@
         >
             <span class="ring">
                 <span class="ring-gap">
-                    <img :src="story.avatarUrl" :alt="story.username" />
+                    <img v-if="story.avatarUrl" :src="story.avatarUrl" :alt="story.username" />
+                    <i v-else class="bi bi-person-circle"></i>
                 </span>
             </span>
 
@@ -23,18 +50,35 @@
             :start-id="activeStoryId"
             @close="closeStory"
         />
+
+        <CreateStoryModal
+            :open="showCreateModal"
+            @close="showCreateModal = false"
+        />
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { useStoryStore } from '@/stores/storyStore';
+import { useAuthStore } from '@/stores/authStore';
 import StoryViewer from './StoryViewer.vue';
+import CreateStoryModal from './CreateStoryModal.vue';
 
 const storyStore = useStoryStore();
+const authStore = useAuthStore();
 
 const activeStoryId = ref(null);
 const storyIdsSnapshot = ref([]);
+const showCreateModal = ref(false);
+
+const ownStory = computed(() =>
+    storyStore.stories.find((story) => story.id === authStore.user?.id)
+);
+
+const otherStories = computed(() =>
+    storyStore.stories.filter((story) => story.id !== authStore.user?.id)
+);
 
 const openStory = (id) => {
     storyIdsSnapshot.value = storyStore.stories.map((story) => story.id);
@@ -43,6 +87,18 @@ const openStory = (id) => {
 
 const closeStory = () => {
     activeStoryId.value = null;
+};
+
+const openCreateModal = () => {
+    showCreateModal.value = true;
+};
+
+const handleOwnClick = () => {
+    if (ownStory.value) {
+        openStory(ownStory.value.id);
+    } else {
+        openCreateModal();
+    }
 };
 </script>
 
@@ -89,6 +145,48 @@ const closeStory = () => {
     background: var(--text-tertiary);
 }
 
+.story-avatar.own {
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.ring-button {
+    position: relative;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+}
+
+.ring-button.seen .ring {
+    background: var(--text-tertiary);
+}
+
+.ring-button.empty .ring {
+    background: var(--bg-dark-gray);
+}
+
+.add-badge {
+    position: absolute;
+    right: 2px;
+    bottom: 2px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--bg-main);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    color: var(--button-blue);
+    font-size: 1.35rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
 .ring-gap {
     flex: 1;
     border-radius: 50%;
@@ -102,6 +200,18 @@ const closeStory = () => {
     height: 100%;
     border-radius: 50%;
     object-fit: cover;
+}
+
+.ring-gap i {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--bg-dark-gray);
+    color: var(--text-tertiary);
+    font-size: 2.6rem;
 }
 
 .username {

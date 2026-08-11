@@ -114,7 +114,6 @@
 import { reactive, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore';
-import authService from '@/services/authService';
 import BaseFormInput from '@/components/BaseFormInput.vue';
 import { 
     validateUsername,
@@ -303,6 +302,10 @@ onMounted(() => {
     border: none;
     padding: 6px;
     min-width: 80px;
+}
+
+.photo-button {
+    cursor: pointer;
 }
 
 .save-button {

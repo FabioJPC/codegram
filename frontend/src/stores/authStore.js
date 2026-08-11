@@ -1,5 +1,8 @@
 import authService from "@/services/authService";
 import { defineStore } from "pinia";
+import { useFeedStore } from "@/stores/feedStore";
+import { useStoryStore } from "@/stores/storyStore";
+import { useSuggestionStore } from "@/stores/suggestionStore";
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -49,7 +52,7 @@ export const useAuthStore = defineStore('auth', {
         async register(data) {
             const response = await authService.register(data);
 
-            authService.setToken(response.data.token);
+            authService.setToken(response.token);
 
             await this.loadUser();
         },
@@ -60,7 +63,18 @@ export const useAuthStore = defineStore('auth', {
             }
             finally {
                 this.clearUser();
+                this.clearOtherStores();
             }
+        },
+
+        clearOtherStores() {
+            // Pinia stores are singletons that persist for the whole SPA
+            // session, so leftover data from the previous account (posts,
+            // stories, suggestions) must be wiped here or it stays visible
+            // to the next user who logs in on the same tab.
+            useFeedStore().$reset();
+            useStoryStore().$reset();
+            useSuggestionStore().$reset();
         },
     },
 })

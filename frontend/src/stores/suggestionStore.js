@@ -22,9 +22,15 @@ export const useSuggestionStore = defineStore('suggestions', () => {
         }
     }
 
+    const $reset = () => {
+        suggestions.value = [];
+        error.value = null;
+    }
+
     return {
         suggestions,
         error,
-        loadSuggestions
+        loadSuggestions,
+        $reset
     }
 })

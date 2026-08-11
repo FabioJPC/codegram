@@ -5,9 +5,29 @@ export const useStoryStore = defineStore('story', {
     state: () => ({
         stories: [],
         error: null,
+        creating: false,
+        createError: null,
     }),
 
     actions: {
+        async createStory(file) {
+            this.createError = null;
+            this.creating = true;
+
+            try {
+                await storyService.create(file);
+
+                await this.loadStories();
+            } catch (e) {
+                this.createError = 'Não foi possível publicar o story.';
+                console.log(e);
+
+                throw e;
+            } finally {
+                this.creating = false;
+            }
+        },
+
         async loadStories() {
             this.error = null;
 
