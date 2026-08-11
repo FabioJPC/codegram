@@ -81,10 +81,10 @@ export function validateUsername(username) {
         return 'O nome de usuário pode ter no máximo 30 caracteres.';
     }
 
-    const usernameRegex = /^[A-Za-z0-9_-]+$/;
+    const usernameRegex = /^[A-Za-z0-9._-]+$/;
 
     if (!usernameRegex.test(username)) {
-        return 'O nome de usuário pode conter apenas letras, números, hífen e underscore.';
+        return 'O nome de usuário pode conter apenas letras, números, pontos, hífen e underscore.';
     }
 
     return null;

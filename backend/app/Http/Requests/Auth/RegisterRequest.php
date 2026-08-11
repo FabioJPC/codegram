@@ -28,7 +28,7 @@ class RegisterRequest extends FormRequest
             'name'          => ['required', 'string', 'min:3', 'max:255'],
             'email'         => ['required', 'email', 'max:255', Rule::unique('users', 'email')],
             'password'      => ['required', 'confirmed', Password::min(8)->letters()->numbers()->symbols()],
-            'username'      => ['required', 'string', 'min:3' ,'max:30', 'alpha_dash', Rule::unique('users', 'username')],
+            'username'      => ['required', 'string', 'min:3' ,'max:30', 'regex:/^[a-zA-Z0-9._-]+$/', Rule::unique('users', 'username')],
         ];
     }
 
@@ -50,7 +50,7 @@ class RegisterRequest extends FormRequest
             'username.string'       => 'O nome de usuário deve ser um texto.',
             'username.min'          => 'O nome de usuário deve ter pelo menos 3 caracteres.',
             'username.max'          => 'O nome de usuário pode ter no máximo 30 caracteres.',
-            'username.alpha_dash'   => 'O nome de usuário pode conter apenas letras, números, hífens e underlines.',
+            'username.regex'        => 'O nome de usuário pode conter apenas letras, números, pontos, hífens e underlines.',
             'username.unique'       => 'Este nome de usuário já está em uso.',
 
             'password.required'     => 'A senha é obrigatória.',

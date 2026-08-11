@@ -30,7 +30,9 @@ class UserController extends Controller
 
         $photo = $request->file('profile_photo');
 
-        return response()->json($this->userService->update($request->user(), $data, $photo));
+        $user = $this->userService->update($request->user(), $data, $photo);
+
+        return new UserResource($user);
     }
 
     public function showProfile(User $user)
@@ -43,5 +45,18 @@ class UserController extends Controller
         $posts = $this->userService->posts($user);
 
         return PostResource::collection($posts);
+    }
+
+    public function search(Request $request)
+    {
+        $query = trim((string) $request->query('query', ''));
+
+        if ($query === '') {
+            return UserProfileResource::collection([]);
+        }
+
+        $users = $this->userService->search($query, $request->user());
+
+        return UserProfileResource::collection($users);
     }
 }

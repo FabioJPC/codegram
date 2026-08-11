@@ -199,6 +199,7 @@
         :is-liked="selectedPost.isLikedByMe"
         @close="closePost"
         @like="togglePostLike"
+        @deleted="handlePostDeleted"
     />
 </template>
 
@@ -312,6 +313,17 @@ const closePost = () => {
 
     selectedPost.value = null
 }
+
+const handlePostDeleted = (postId) => {
+    posts.value = posts.value.filter(post => post.id !== postId);
+
+    if (profileUser.value) {
+        profileUser.value.postsCount = Math.max(
+            0,
+            (profileUser.value.postsCount ?? 1) - 1
+        );
+    }
+};
 
 const togglePostLike = async () => {
     if (!selectedPost.value) return;

@@ -180,6 +180,10 @@ onBeforeUnmount(() => {
     color: var(--text-primary);
 }
 
+.search-header {
+    margin-top: 80px;
+}
+
 .search-header h1 {
     margin: 0 0 20px;
     font-size: 22px;

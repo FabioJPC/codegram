@@ -3,6 +3,7 @@
 namespace App\Services\Api;
 
 use App\Models\User;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -49,7 +50,7 @@ class UserService
             throw $e;
         }
 
-        return ['data' => $user->fresh()];
+        return $user->fresh();
     }
 
     public function showProfile(User $user): User
@@ -78,5 +79,31 @@ class UserService
             ->with('user', 'images', 'likes')
             ->withCount('likes', 'comments')
             ->paginate('12');
+    }
+
+    public function search(string $query, ?User $currentUser): Collection
+    {
+        $users = User::query()
+            ->where(function ($builder) use ($query) {
+                $builder->where('name', 'like', "%{$query}%")
+                    ->orWhere('username', 'like', "%{$query}%");
+            })
+            ->withCount([
+                'posts',
+                'followers',
+                'following'
+            ])
+            ->limit(20)
+            ->get();
+
+        if ($currentUser) {
+            $followingIds = $currentUser->following()->pluck('users.id');
+
+            $users->each(function (User $user) use ($followingIds) {
+                $user->isFollowing = $followingIds->contains($user->id);
+            });
+        }
+
+        return $users;
     }
 }

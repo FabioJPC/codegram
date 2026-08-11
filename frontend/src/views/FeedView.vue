@@ -2,11 +2,14 @@
     <div class="feed">
         
         <main class="main">
-            <div v-if="storyStore.error" class="error-message">
-                {{ storyStore.error }}
-            </div>
+            
+            <div class="stories-container">
+                <div v-if="storyStore.error" class="error-message">
+                    {{ storyStore.error }}
+                </div>
 
-            <StoriesBar />
+                <StoriesBar />
+            </div>
 
             <div class="feed-container">
                 <div v-if="feedStore.error" class="error-message">
@@ -17,6 +20,7 @@
                     v-for="post in feedStore.posts"
                     :key="post.id"
                     :post="post"
+                    @deleted="feedStore.removePost"
                 />
             </div>
         </main>
@@ -89,6 +93,13 @@ onMounted(async ()=> {
     justify-content: flex-start;
     padding-top: 50px;
     padding-bottom: 10px;
+}
+
+.stories-container {
+    flex: 2 1 0%;
+    display: flex;
+    justify-content: center;
+    width: 100%;
 }
 
 .nav {
