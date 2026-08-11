@@ -26,7 +26,7 @@ COPY . .
 
 RUN cp php/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 
-RUN composer install
+RUN composer install --no-dev --optimize-autoloader
 
 RUN sed -ri -e 's!/var/www/html!/var/www/html/public!g' \
     /etc/apache2/sites-available/*.conf

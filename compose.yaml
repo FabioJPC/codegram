@@ -6,13 +6,10 @@ services:
     container_name: frontend
     build:
       context: ./frontend
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:8000/api
     ports:
-      - "5173:5173"
-    environment:
-      VITE_API_URL: http://localhost:8000/api
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
+      - "5173:80"
     depends_on:
       - api
