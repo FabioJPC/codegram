@@ -2,14 +2,7 @@
     <div class="feed">
         
         <main class="main">
-            <div class="stories-container">
-                <div class="placeholders"></div>
-                <div class="placeholders"></div>
-                <div class="placeholders"></div>
-                <div class="placeholders"></div>
-                <div class="placeholders"></div>
-                <div class="placeholders"></div>
-            </div>
+            <StoriesBar />
 
             <div class="feed-container">
                 <div v-if="feedStore.error" class="error-message">
@@ -56,6 +49,7 @@
 <script setup>
 import Post from '@/components/Post.vue';
 import SuggestionCard from '@/components/SuggestionCard.vue';
+import StoriesBar from '@/components/StoriesBar.vue';
 import { ref, onMounted} from 'vue';
 import { useAuthStore } from '@/stores/authStore';
 import UserHeader from '@/components/UserHeader.vue';
@@ -135,22 +129,6 @@ onMounted(async ()=> {
     background: transparent;
     border-radius: 4px;
     margin: 5px 0;
-}
-
-.stories-container {
-    display: flex;
-    gap: 30px;
-    height: 20%;
-    align-items: center;
-    justify-content: center;
-    margin-top: 40px;
-
-    .placeholders {
-        height: 90px;
-        width: 90px;
-        border-radius: 50%;
-        background-color: azure;
-    }
 }
 
 .profile-container {

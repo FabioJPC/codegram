@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx --yes playwright screenshot --viewport-size=1400,900 \"http://localhost:5173\" feed.png)",
+      "Bash(npx --yes playwright install chromium)",
+      "Bash(npx --yes playwright screenshot --help)",
+      "Bash(npm install *)",
+      "Bash(curl -s -X POST http://localhost:8000/api/register -H \"Content-Type: application/json\" -H \"Accept: application/json\" -d '{\"name\":\"Teste Playwright\",\"username\":\"teste_playwright\",\"email\":\"teste_playwright@example.com\",\"password\":\"password123\",\"password_confirmation\":\"password123\"}')",
+      "Bash(curl -s -X POST http://localhost:8000/api/register -H \"Content-Type: application/json\" -H \"Accept: application/json\" -d '{\"name\":\"Teste Playwright\",\"username\":\"teste_playwright\",\"email\":\"teste_playwright@example.com\",\"password\":\"Password123!\",\"password_confirmation\":\"Password123!\"}')",
+      "Bash(node test-stories.js)",
+      "Bash(node debug.js)",
+      "Bash(rm -f test-stories.js debug.js test-image.js debug.html *.png)",
+      "Bash(rm -rf node_modules package-lock.json package.json)"
+    ]
+  }
+}
