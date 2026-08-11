@@ -13,6 +13,11 @@ done
 echo "Executando migrations..."
 php artisan migrate --force
 
+if [ ! -L public/storage ]; then
+  echo "Criando link simbólico do storage..."
+  php artisan storage:link
+fi
+
 echo "Setup concluído!"
 
 exec "$@"

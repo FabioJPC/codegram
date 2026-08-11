@@ -63,6 +63,15 @@ class User extends Authenticatable
         )->latest();
     }
 
+    public function stories()
+    {
+        return $this->hasMany(
+            Story::class,
+            'user_id',
+            'id'
+        )->latest();
+    }
+
     public function comments(): HasMany
     {
         return $this->hasMany(

@@ -62,8 +62,6 @@ import { useStoryStore } from '@/stores/storyStore';
 import UserHeader from './UserHeader.vue';
 
 const props = defineProps({
-    // Ordem fixa (snapshot) dos ids de usuário a navegar. Fica congelada
-    // pelo StoriesBar para não pular quando a fila é reordenada.
     storyIds: {
         type: Array,
         required: true,
@@ -194,8 +192,6 @@ const handleKeydown = (event) => {
     if (event.key === 'ArrowLeft') prevItem();
 };
 
-// Assim que o story de um usuário é exibido pro viewer, ele é marcado como
-// visto e vai pro final da fila (mesma regra vale ao abrir o primeiro).
 watch(
     currentUser,
     (user) => {

@@ -26,6 +26,8 @@ tags:
     description: Comentários em posts
   - name: Likes
     description: Curtidas em posts
+  - name: Stories
+    description: Stories com expiração de 24h
 
 security: []
 
@@ -557,6 +559,72 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthenticated'
 
+  /stories:
+    post:
+      tags: [Stories]
+      summary: Criar um novo story
+      description: |
+        Cria um story com uma única imagem, expirando automaticamente 24h após a criação.
+        Retorna o Model `Story` "cru" (não é um `StoryResource`), com a relação `user` carregada.
+      operationId: createStory
+      security: [{ sanctum: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateStoryRequest'
+      responses:
+        '201':
+          description: Story criado com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoryRawResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /stories/{story}:
+    delete:
+      tags: [Stories]
+      summary: Excluir um story
+      description: Exclui um story (e sua imagem em disco), independentemente de já estar expirado. Apenas o dono do story pode excluí-lo (403 caso contrário).
+      operationId: deleteStory
+      security: [{ sanctum: [] }]
+      parameters:
+        - $ref: '#/components/parameters/StoryIdPath'
+      responses:
+        '204':
+          description: Story excluído com sucesso (sem conteúdo).
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /stories/feed:
+    get:
+      tags: [Stories]
+      summary: Feed de stories do usuário autenticado
+      description: |
+        Retorna (via `StoryResource`) os stories **não expirados** (`expires_at > now()`) do usuário
+        autenticado e de quem ele segue, do mais antigo para o mais recente. Não é paginado — a
+        janela de 24h naturalmente limita o volume de resultados.
+      operationId: getStoriesFeed
+      security: [{ sanctum: [] }]
+      responses:
+        '200':
+          description: Lista de stories não expirados.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StoriesFeedResponse'
+        '401':
+          $ref: '#/components/responses/Unauthenticated'
+
   /users/{username}:
     get:
       tags: [Users]
@@ -608,6 +676,13 @@ components:
       in: path
       required: true
       description: ID do post.
+      schema:
+        type: integer
+    StoryIdPath:
+      name: story
+      in: path
+      required: true
+      description: ID do story.
       schema:
         type: integer
     CommentIdPath:
@@ -760,6 +835,15 @@ components:
           minLength: 1
           maxLength: 1000
 
+    CreateStoryRequest:
+      type: object
+      required: [image]
+      properties:
+        image:
+          type: string
+          format: binary
+          description: Imagem jpg, jpeg, png ou webp, até 5MB (5120KB).
+
     # ---------- Raw Eloquent models (returned as-is by some endpoints) ----------
     UserRaw:
       type: object
@@ -835,6 +919,30 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PostImageRaw'
+
+    StoryRaw:
+      type: object
+      description: Model `Story` do Eloquent serializado diretamente, com a relação `user` carregada.
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        path:
+          type: string
+          description: Caminho relativo do arquivo armazenado (não é uma URL completa).
+        expires_at:
+          type: string
+          format: date-time
+          description: Momento em que o story deixa de aparecer no feed (24h após a criação).
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        user:
+          $ref: '#/components/schemas/UserRaw'
 
     # ---------- API Resources ----------
     UserResource:
@@ -935,6 +1043,35 @@ components:
         author:
           $ref: '#/components/schemas/PostAuthor'
 
+    StoryAuthor:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        name:
+          type: string
+        avatarUrl:
+          type: string
+          format: uri
+          nullable: true
+
+    StoryResource:
+      type: object
+      description: Formato retornado por `StoryResource`.
+      properties:
+        id:
+          type: integer
+        url:
+          type: string
+          format: uri
+        expiresAt:
+          type: string
+          format: date-time
+        author:
+          $ref: '#/components/schemas/StoryAuthor'
+
     CommentUser:
       type: object
       properties:
@@ -1025,6 +1162,20 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/PostRaw'
+
+    StoryRawResponse:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/StoryRaw'
+
+    StoriesFeedResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/StoryResource'
 
     CommentResourceResponse:
       type: object

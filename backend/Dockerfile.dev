@@ -48,4 +48,3 @@ CMD ["apache2-foreground"]
 # TODO: increase php.ini max_file_size to 20MB
 # TODO: increase php.ini memory_limit to 256MB
 # TODO: increase php.ini post_max_size to 205M
-# TODO: php artisan storage:link

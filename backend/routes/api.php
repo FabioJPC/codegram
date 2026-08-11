@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\FollowController;
 use App\Http\Controllers\Api\LikeController;
 use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\StoryController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -48,6 +49,11 @@ Route::middleware('auth:sanctum')->group(function() {
 
     // Feed
     Route::get('feed', [PostController::class, 'feed']);
+
+    // Stories
+    Route::post('stories', [StoryController::class, 'store']);
+    Route::delete('stories/{story}', [StoryController::class, 'destroy']);
+    Route::get('stories/feed', [StoryController::class, 'feed']);
 
     // Users
     Route::get('users/{user:username}', [UserController::class, 'showProfile']);
