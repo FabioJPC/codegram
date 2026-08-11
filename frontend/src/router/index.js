@@ -9,6 +9,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import pinia from '@/pinia';
 import ProfileView from '@/views/ProfileView.vue';
 import EditProfileView from '@/views/EditProfileView.vue';
+import SearchView from '@/views/SearchView.vue';
 
 const routes = [
   {
@@ -40,6 +41,21 @@ const routes = [
         path: '',
         name: 'feed',
         component: FeedView
+      }
+    ]
+  },
+
+  {
+    path: '/search',
+    component: DefaultLayout,
+    meta: {
+      requiresAuth: true
+    },
+    children: [
+      {
+        path: '',
+        name: 'search',
+        component: SearchView
       }
     ]
   },

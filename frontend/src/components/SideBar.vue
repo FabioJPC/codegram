@@ -12,10 +12,13 @@
                 <span class="nav-label">Página Inicial</span>
             </router-link>
             
-            <div class="nav-link">
+            <router-link
+                :to="`/search`"
+                class="nav-link"
+            >
                 <i class="bi bi-search"></i>
                 <span class="nav-label">Pesquisar</span>
-            </div>
+            </router-link>
 
             <div class="nav-link" @click="showModal = true">
                 <i class="bi bi-plus-circle"></i>

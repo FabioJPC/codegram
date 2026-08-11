@@ -35,5 +35,13 @@ export default {
         const response = await api.get(`/users/${userId}/following`)
 
         return response.data;
+    },
+
+    async searchUsers(query) {
+        const response = await api.get('/users/search', {
+            params: { query }
+        });
+
+        return response.data.data;
     }
 }
